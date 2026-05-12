@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Gasto Tracker · Manuel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0A0A0F;
+  --surface: #111118;
+  --surface2: #18181F;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #F0F0F5;
+  --muted: #5A5A6E;
+  --accent: #7C6FFF;
+  --accent2: #A594FF;
+  --green: #3DD68C;
+  --red: #FF5F5F;
+  --amber: #FFB547;
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); }
+
+/* ── LAYOUT ── */
+.app { max-width: 420px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+.header { padding: 20px 20px 0; display: flex; align-items: center; justify-content: space-between; }
+.logo { font-family: var(--mono); font-size: 13px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+.month-label { font-family: var(--mono); font-size: 11px; color: var(--accent2); background: rgba(124,111,255,0.1); padding: 4px 10px; border-radius: 20px; }
+
+/* ── BUDGET RING ── */
+.ring-section { padding: 24px 20px 20px; display: flex; flex-direction: column; align-items: center; }
+.ring-wrap { position: relative; width: 180px; height: 180px; }
+.ring-wrap svg { transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: var(--surface2); stroke-width: 12; }
+.ring-fill { fill: none; stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset .6s cubic-bezier(.4,0,.2,1), stroke .3s; }
+.ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ring-spent { font-family: var(--mono); font-size: 26px; font-weight: 500; color: var(--text); }
+.ring-total { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.ring-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; width: 100%; margin-top: 20px; }
+.stat-box { background: var(--surface); border: 0.5px solid var(--border); border-radius: 14px; padding: 12px; text-align: center; }
+.stat-val { font-family: var(--mono); font-size: 15px; font-weight: 500; }
+.stat-lbl { font-size: 10px; color: var(--muted); margin-top: 3px; text-transform: uppercase; letter-spacing: .5px; }
+
+/* ── ADD EXPENSE ── */
+.add-section { padding: 0 20px 20px; }
+.add-card { background: var(--surface); border: 0.5px solid var(--border2); border-radius: 20px; padding: 20px; }
+.add-title { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; font-family: var(--mono); }
+.amount-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.euro-sign { font-family: var(--mono); font-size: 28px; color: var(--accent2); }
+.amount-input { flex: 1; background: var(--surface2); border: 0.5px solid var(--border2); border-radius: 12px; padding: 12px 14px; font-family: var(--mono); font-size: 24px; color: var(--text); outline: none; width: 100%; transition: border .2s; }
+.amount-input:focus { border-color: var(--accent); }
+.amount-input::placeholder { color: var(--muted); }
+.cat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 14px; }
+.cat-btn { background: var(--surface2); border: 0.5px solid var(--border); border-radius: 12px; padding: 10px 6px; text-align: center; cursor: pointer; transition: all .15s; font-size: 11px; color: var(--muted); }
+.cat-btn:hover { border-color: var(--border2); color: var(--text); }
+.cat-btn.selected { background: rgba(124,111,255,0.15); border-color: var(--accent); color: var(--accent2); }
+.cat-icon { font-size: 18px; display: block; margin-bottom: 3px; }
+.note-input { width: 100%; background: var(--surface2); border: 0.5px solid var(--border); border-radius: 12px; padding: 10px 14px; font-family: var(--sans); font-size: 14px; color: var(--text); outline: none; margin-bottom: 14px; transition: border .2s; }
+.note-input:focus { border-color: var(--accent); }
+.note-input::placeholder { color: var(--muted); }
+.add-btn { width: 100%; background: var(--accent); border: none; border-radius: 14px; padding: 15px; font-family: var(--sans); font-size: 15px; font-weight: 600; color: #fff; cursor: pointer; transition: all .15s; letter-spacing: .3px; }
+.add-btn:hover { background: var(--accent2); transform: translateY(-1px); }
+.add-btn:active { transform: translateY(0) scale(.99); }
+
+/* ── LIST ── */
+.list-section { flex: 1; padding: 0 20px 100px; }
+.list-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.list-title { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-family: var(--mono); }
+.clear-btn { font-size: 11px; color: var(--muted); background: none; border: none; cursor: pointer; font-family: var(--mono); transition: color .15s; }
+.clear-btn:hover { color: var(--red); }
+.expense-item { display: flex; align-items: center; background: var(--surface); border: 0.5px solid var(--border); border-radius: 16px; padding: 14px 16px; margin-bottom: 8px; gap: 12px; animation: slideIn .2s ease; }
+@keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+.item-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.item-info { flex: 1; min-width: 0; }
+.item-cat { font-size: 13px; font-weight: 500; color: var(--text); }
+.item-note { font-size: 11px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-time { font-size: 10px; color: var(--muted); font-family: var(--mono); }
+.item-amount { font-family: var(--mono); font-size: 15px; font-weight: 500; color: var(--text); flex-shrink: 0; }
+.item-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; padding: 4px; transition: color .15s; flex-shrink: 0; }
+.item-del:hover { color: var(--red); }
+.empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; }
+.empty-icon { font-size: 32px; margin-bottom: 10px; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 420px; background: var(--surface); border-top: 0.5px solid var(--border2); display: flex; padding: 10px 0 20px; }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 6px; transition: all .15s; }
+.nav-item .ni { font-size: 20px; }
+.nav-item span { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+.nav-item.active span { color: var(--accent2); }
+.nav-item.active .ni { filter: drop-shadow(0 0 6px var(--accent)); }
+
+/* ── BUDGET PAGE ── */
+.budget-section { padding: 0 20px; display: none; }
+.budget-section.active { display: block; }
+.budget-row { display: flex; align-items: center; background: var(--surface); border: 0.5px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; gap: 12px; }
+.budget-cat { flex: 1; font-size: 14px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.budget-input { width: 80px; background: var(--surface2); border: 0.5px solid var(--border); border-radius: 8px; padding: 6px 10px; font-family: var(--mono); font-size: 13px; color: var(--text); outline: none; text-align: right; transition: border .2s; }
+.budget-input:focus { border-color: var(--accent); }
+.budget-bar-wrap { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin-top: 4px; }
+.budget-bar { height: 100%; border-radius: 2px; transition: width .4s; }
+.section-title { font-family: var(--mono); font-size: 13px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin: 20px 0 12px; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface2); border: 0.5px solid var(--border2); border-radius: 20px; padding: 10px 20px; font-size: 13px; color: var(--text); opacity: 0; transition: all .3s; pointer-events: none; white-space: nowrap; z-index: 100; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── VIEWS ── */
+.view { display: none; }
+.view.active { display: block; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">Gasto//Track</div>
+    <div class="month-label" id="month-label">Mayo 2025</div>
+  </div>
+
+  <!-- VIEW: HOME -->
+  <div class="view active" id="view-home">
+
+    <!-- Budget ring -->
+    <div class="ring-section">
+      <div class="ring-wrap">
+        <svg width="180" height="180" viewBox="0 0 180 180">
+          <circle class="ring-bg" cx="90" cy="90" r="78"/>
+          <circle class="ring-fill" id="ring" cx="90" cy="90" r="78"
+            stroke-dasharray="490" stroke-dashoffset="490"/>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-spent" id="ring-spent">0 €</div>
+          <div class="ring-total" id="ring-total">de 900 €</div>
+        </div>
+      </div>
+      <div class="ring-stats">
+        <div class="stat-box">
+          <div class="stat-val" id="stat-left" style="color:var(--green)">900 €</div>
+          <div class="stat-lbl">Queda</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="stat-count">0</div>
+          <div class="stat-lbl">Gastos</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="stat-today">0 €</div>
+          <div class="stat-lbl">Hoy</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add expense -->
+    <div class="add-section">
+      <div class="add-card">
+        <div class="add-title">Nuevo gasto</div>
+        <div class="amount-row">
+          <div class="euro-sign">€</div>
+          <input type="number" class="amount-input" id="amount-inp" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+        </div>
+        <div class="cat-grid" id="cat-grid"></div>
+        <input type="text" class="note-input" id="note-inp" placeholder="Nota (opcional)">
+        <button class="add-btn" onclick="addExpense()">Añadir gasto</button>
+      </div>
+    </div>
+
+    <!-- List -->
+    <div class="list-section">
+      <div class="list-header">
+        <div class="list-title">Últimos gastos</div>
+        <button class="clear-btn" onclick="clearAll()">Borrar todo</button>
+      </div>
+      <div id="expense-list"></div>
+    </div>
+
+  </div><!-- /view-home -->
+
+  <!-- VIEW: BUDGET -->
+  <div class="view" id="view-budget">
+    <div class="budget-section active">
+      <div class="section-title">Presupuesto mensual</div>
+      <div id="budget-rows"></div>
+      <div class="section-title" style="margin-top:24px">Consumo por categoría</div>
+      <div id="budget-usage"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <div class="nav-item active" id="nav-home" onclick="switchView('home')">
+      <div class="ni">💸</div>
+      <span>Gastos</span>
+    </div>
+    <div class="nav-item" id="nav-budget" onclick="switchView('budget')">
+      <div class="ni">🎯</div>
+      <span>Límites</span>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CATS = [
+  { id:'comida',    label:'Comida',     icon:'🍔', color:'#FF8C42', bg:'rgba(255,140,66,.15)' },
+  { id:'transporte',label:'Transp.',    icon:'🚇', color:'#58A6FF', bg:'rgba(88,166,255,.15)' },
+  { id:'ocio',      label:'Ocio',       icon:'🎉', color:'#FF5F9E', bg:'rgba(255,95,158,.15)' },
+  { id:'compras',   label:'Compras',    icon:'🛍️', color:'#A594FF', bg:'rgba(165,148,255,.15)' },
+  { id:'salud',     label:'Salud',      icon:'💊', color:'#3DD68C', bg:'rgba(61,214,140,.15)' },
+  { id:'suscri',    label:'Suscripc.',  icon:'📱', color:'#FFB547', bg:'rgba(255,181,71,.15)' },
+  { id:'viajes',    label:'Viajes',     icon:'✈️', color:'#00D4FF', bg:'rgba(0,212,255,.15)' },
+  { id:'otros',     label:'Otros',      icon:'📌', color:'#888',    bg:'rgba(136,136,136,.12)' },
+];
+
+const BUDGETS_DEFAULT = { comida:200, transporte:50, ocio:150, compras:100, salud:50, suscri:30, viajes:100, otros:50 };
+
+let expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+let budgets  = JSON.parse(localStorage.getItem('budgets')  || JSON.stringify(BUDGETS_DEFAULT));
+let selectedCat = 'comida';
+
+// Month label
+const now = new Date();
+const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+document.getElementById('month-label').textContent = months[now.getMonth()] + ' ' + now.getFullYear();
+
+// Build category grid
+const grid = document.getElementById('cat-grid');
+CATS.forEach(cat => {
+  const btn = document.createElement('div');
+  btn.className = 'cat-btn' + (cat.id === selectedCat ? ' selected' : '');
+  btn.dataset.id = cat.id;
+  btn.innerHTML = `<span class="cat-icon">${cat.icon}</span>${cat.label}`;
+  btn.onclick = () => {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedCat = cat.id;
+  };
+  grid.appendChild(btn);
+});
+
+function getMonthExpenses() {
+  const y = now.getFullYear(), m = now.getMonth();
+  return expenses.filter(e => {
+    const d = new Date(e.ts);
+    return d.getFullYear()===y && d.getMonth()===m;
+  });
+}
+
+function getTotalBudget() {
+  return Object.values(budgets).reduce((a,b) => a+(+b||0), 0);
+}
+
+function updateUI() {
+  const me = getMonthExpenses();
+  const total = me.reduce((a,e) => a+e.amount, 0);
+  const budget = getTotalBudget();
+  const left = budget - total;
+  const pct = Math.min(1, budget > 0 ? total/budget : 0);
+  const circumference = 490;
+  const offset = circumference - pct * circumference;
+
+  const ring = document.getElementById('ring');
+  ring.style.strokeDashoffset = offset;
+  ring.style.stroke = pct > .9 ? '#FF5F5F' : pct > .7 ? '#FFB547' : '#7C6FFF';
+
+  document.getElementById('ring-spent').textContent = total.toFixed(0) + ' €';
+  document.getElementById('ring-total').textContent = 'de ' + budget + ' €';
+  document.getElementById('stat-left').textContent = left.toFixed(0) + ' €';
+  document.getElementById('stat-left').style.color = left < 0 ? 'var(--red)' : 'var(--green)';
+  document.getElementById('stat-count').textContent = me.length;
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayTotal = me.filter(e => new Date(e.ts) >= today).reduce((a,e) => a+e.amount, 0);
+  document.getElementById('stat-today').textContent = todayTotal.toFixed(0) + ' €';
+
+  renderList(me);
+  renderBudgetUsage(me);
+}
+
+function renderList(me) {
+  const el = document.getElementById('expense-list');
+  const sorted = [...me].sort((a,b) => b.ts-a.ts).slice(0,30);
+  if (!sorted.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">💤</div>Sin gastos este mes</div>';
+    return;
+  }
+  el.innerHTML = sorted.map(e => {
+    const cat = CATS.find(c => c.id===e.cat) || CATS[7];
+    const d = new Date(e.ts);
+    const timeStr = d.toLocaleDateString('es-ES',{day:'2-digit',month:'short'}) + ' · ' + d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="expense-item">
+      <div class="item-icon" style="background:${cat.bg};">${cat.icon}</div>
+      <div class="item-info">
+        <div class="item-cat">${cat.label}</div>
+        <div class="item-note">${e.note || timeStr}</div>
+        ${e.note ? `<div class="item-time">${timeStr}</div>` : ''}
+      </div>
+      <div class="item-amount">${e.amount.toFixed(2)} €</div>
+      <button class="item-del" onclick="deleteExpense(${e.ts})">×</button>
+    </div>`;
+  }).join('');
+}
+
+function renderBudgetUsage(me) {
+  const usage = document.getElementById('budget-usage');
+  const spent = {};
+  CATS.forEach(c => spent[c.id] = 0);
+  me.forEach(e => { if (spent[e.cat]!==undefined) spent[e.cat] += e.amount; });
+  usage.innerHTML = CATS.map(cat => {
+    const s = spent[cat.id] || 0;
+    const b = budgets[cat.id] || 50;
+    const pct = Math.min(100, b > 0 ? s/b*100 : 0);
+    const color = pct > 90 ? 'var(--red)' : pct > 70 ? 'var(--amber)' : cat.color;
+    return `<div class="budget-row">
+      <div class="budget-cat">
+        <span>${cat.icon}</span>${cat.label}
+      </div>
+      <div style="flex:1;margin:0 12px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px">
+          <span style="font-family:var(--mono)">${s.toFixed(0)} €</span>
+          <span style="font-family:var(--mono)">${b} €</span>
+        </div>
+        <div class="budget-bar-wrap">
+          <div class="budget-bar" style="width:${pct}%;background:${color}"></div>
+        </div>
+      </div>
+      <span style="font-family:var(--mono);font-size:12px;color:${color};min-width:32px;text-align:right">${pct.toFixed(0)}%</span>
+    </div>`;
+  }).join('');
+}
+
+function renderBudgetInputs() {
+  const el = document.getElementById('budget-rows');
+  el.innerHTML = CATS.map(cat => `
+    <div class="budget-row">
+      <div class="budget-cat"><span>${cat.icon}</span>${cat.label}</div>
+      <span style="font-size:12px;color:var(--muted);font-family:var(--mono)">€</span>
+      <input type="number" class="budget-input" value="${budgets[cat.id]||50}"
+        onchange="budgets['${cat.id}']=+this.value;saveBudgets();updateUI()"
+        min="0" step="10">
+    </div>`).join('');
+}
+
+function addExpense() {
+  const val = parseFloat(document.getElementById('amount-inp').value);
+  if (!val || val <= 0) { showToast('Introduce un importe válido'); return; }
+  const note = document.getElementById('note-inp').value.trim();
+  const expense = { ts: Date.now(), amount: val, cat: selectedCat, note };
+  expenses.push(expense);
+  saveExpenses();
+  updateUI();
+  document.getElementById('amount-inp').value = '';
+  document.getElementById('note-inp').value = '';
+  const cat = CATS.find(c => c.id===selectedCat);
+  showToast(cat.icon + ' ' + val.toFixed(2) + ' € añadido');
+
+  // Check budget alert
+  const me = getMonthExpenses();
+  const catSpent = me.filter(e=>e.cat===selectedCat).reduce((a,e)=>a+e.amount,0);
+  const catBudget = budgets[selectedCat] || 50;
+  if (catSpent > catBudget) {
+    setTimeout(() => showToast('⚠️ Superaste el límite en ' + cat.label, true), 1200);
+  }
+}
+
+function deleteExpense(ts) {
+  expenses = expenses.filter(e => e.ts !== ts);
+  saveExpenses();
+  updateUI();
+}
+
+function clearAll() {
+  if (!confirm('¿Borrar todos los gastos de este mes?')) return;
+  const y = now.getFullYear(), m = now.getMonth();
+  expenses = expenses.filter(e => {
+    const d = new Date(e.ts);
+    return !(d.getFullYear()===y && d.getMonth()===m);
+  });
+  saveExpenses();
+  updateUI();
+}
+
+function switchView(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.getElementById('nav-'+v).classList.add('active');
+  if (v==='budget') { renderBudgetInputs(); updateUI(); }
+}
+
+function saveExpenses() { localStorage.setItem('expenses', JSON.stringify(expenses)); }
+function saveBudgets()  { localStorage.setItem('budgets',  JSON.stringify(budgets)); }
+
+function showToast(msg, warn=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = warn ? 'rgba(255,181,71,.3)' : 'rgba(255,255,255,.12)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Enter key on amount
+document.getElementById('amount-inp').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addExpense();
+});
+
+updateUI();
+</script>
+</body>
+</html>
