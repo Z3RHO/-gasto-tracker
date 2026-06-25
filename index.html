@@ -277,7 +277,7 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   </div>
 
   <div class="rs">
-    <div class="rsect"><span>Recurrentes</span><button class="rsadd" onclick="openModal('recur')">+ Añadir</button></div>
+    <div class="rsect"><span>Recurrentes</span></div>
     <div id="recur-list"></div>
   </div>
 
@@ -304,7 +304,7 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
     </div>
     <div class="ssect" style="display:flex;align-items:center;justify-content:space-between">
       <span>Límites por categoría <span style="font-size:10px;color:var(--hint);font-weight:400;text-transform:none;letter-spacing:0"> · toca para editar</span></span>
-      <button onclick="openModal('addcat')" style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:0.5px solid rgba(232,255,71,0.25);border-radius:20px;padding:4px 12px;cursor:pointer;font-family:var(--body);font-weight:600;transition:all .15s">+ Nueva</button>
+      <button onclick="sv('cats');buildColorPicker();renderCustomCatsList()" style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:0.5px solid rgba(232,255,71,0.25);border-radius:20px;padding:4px 12px;cursor:pointer;font-family:var(--body);font-weight:600;transition:all .15s">+ Nueva</button>
     </div>
     <div id="catlimits"></div>
   </div>
@@ -336,6 +336,50 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   </div>
 </div>
 
+</div>
+
+<!-- CATS VIEW -->
+<div class="view" id="view-cats">
+  <div style="padding:52px 20px 0;display:flex;align-items:center;gap:14px;border-bottom:0.5px solid var(--bd);padding-bottom:22px;margin-bottom:24px">
+    <button onclick="sv('stats')" style="background:none;border:none;color:var(--sub);font-size:22px;cursor:pointer;line-height:1;padding:4px;transition:color .15s">←</button>
+    <div style="font-family:var(--disp);font-size:18px;font-weight:700;color:var(--text)">Mis categorías</div>
+  </div>
+
+  <div style="padding:0 20px">
+
+    <!-- Nueva categoría -->
+    <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:12px">Nueva categoría</div>
+
+    <div style="background:var(--s1);border:0.5px solid var(--bd2);border-radius:18px;padding:18px;margin-bottom:24px">
+      <input type="text" id="newcat-name" placeholder="Nombre (ej: Gimnasio, Mascota...)"
+        style="width:100%;background:var(--s2);border:0.5px solid var(--bd);border-radius:11px;padding:13px 14px;font-family:var(--body);font-size:15px;font-weight:600;color:var(--text);outline:none;margin-bottom:12px;-webkit-appearance:none;transition:border .2s"
+        onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--bd)'">
+
+      <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:10px">Color</div>
+      <div id="color-picker" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px"></div>
+
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px">
+        <div style="flex:1">
+          <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:8px">Límite mensual</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="number" id="newcat-limit" placeholder="100" inputmode="decimal"
+              style="flex:1;background:var(--s2);border:0.5px solid var(--bd);border-radius:11px;padding:12px 14px;font-family:var(--disp);font-size:18px;font-weight:700;color:var(--text);outline:none;text-align:right;-webkit-appearance:none;transition:border .2s"
+              onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--bd)'">
+            <span style="font-size:14px;color:var(--sub);font-weight:600">€/mes</span>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="addCustomCat()" style="width:100%;background:var(--accent);border:none;border-radius:13px;padding:14px;font-family:var(--disp);font-size:15px;font-weight:700;color:#000;cursor:pointer;transition:all .15s">
+        + Añadir categoría
+      </button>
+    </div>
+
+    <!-- Existentes -->
+    <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:12px">Personalizadas</div>
+    <div id="custom-cats-list"></div>
+
+  </div>
 </div>
 
 <!-- NAV -->
@@ -375,48 +419,6 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   <div class="modal"><div id="summary-content"></div><button onclick="closeModal('summary')" style="width:100%;background:var(--accent);border:none;border-radius:13px;padding:13px;font-family:var(--disp);font-size:14px;font-weight:700;color:#000;cursor:pointer;margin-top:16px">Continuar →</button></div>
 </div>
 
-<!-- ADD CATEGORY MODAL -->
-<div class="mbg" id="modal-addcat">
-  <div class="modal" style="padding:24px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-      <div style="font-family:var(--disp);font-size:18px;font-weight:700;color:var(--text)">Nueva categoría</div>
-      <button onclick="closeModal('addcat')" style="width:32px;height:32px;background:var(--s2);border:0.5px solid var(--bd2);border-radius:50%;font-size:18px;color:var(--sub);cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;transition:all .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--sub)'">×</button>
-    </div>
-
-    <!-- nombre -->
-    <div style="margin-bottom:16px">
-      <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:8px">Nombre</div>
-      <input type="text" class="rm-in" id="newcat-name" placeholder="ej: Gimnasio, Mascota, Ahorro..."
-        style="font-size:16px;font-weight:600;padding:14px">
-    </div>
-
-    <!-- color -->
-    <div style="margin-bottom:16px">
-      <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:10px">Color</div>
-      <div id="color-picker" style="display:flex;gap:10px;flex-wrap:wrap"></div>
-    </div>
-
-    <!-- limite -->
-    <div style="margin-bottom:20px">
-      <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:8px">Límite mensual</div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <input type="number" class="rm-in" id="newcat-limit" placeholder="100" inputmode="decimal"
-          style="font-size:18px;font-weight:700;font-family:var(--disp);text-align:right;padding:12px 14px">
-        <span style="font-size:14px;color:var(--sub);font-weight:600;white-space:nowrap">€ / mes</span>
-      </div>
-    </div>
-
-    <button class="rm-btn" onclick="addCustomCat()" style="font-size:15px;padding:15px">
-      + Añadir categoría
-    </button>
-
-    <!-- lista existentes -->
-    <div style="margin-top:20px;padding-top:16px;border-top:0.5px solid var(--bd)">
-      <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:10px">Tus categorías personalizadas</div>
-      <div id="custom-cats-list"></div>
-    </div>
-  </div>
-</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1114,6 +1116,9 @@ function addCustomCat(){
   document.getElementById('newcat-name').value = '';
   document.getElementById('newcat-limit').value = '';
   renderCustomCatsList();
+  buildColorPicker();
+  document.getElementById('newcat-name').value='';
+  document.getElementById('newcat-limit').value='';
   updateStats();
   toast('Categoría "'+name+'" añadida');
 }
@@ -1132,27 +1137,7 @@ function deleteCustomCat(id){
 }
 
 /* Patch openModal to handle addcat */
-const _origOpenModal = openModal;
-function openModal(id){
-  if(id==='addcat'){
-    buildColorPicker();
-    renderCustomCatsList();
-    document.getElementById('modal-addcat').classList.add('on');
-    return;
-  }
-  _origOpenModal(id);
-}
-
-/* Patch closeModal to handle addcat */
-const _origCloseModal = closeModal;
-function closeModal(id,e){
-  if(id==='addcat'){
-    if(!e||e.target===document.getElementById('modal-addcat'))
-      document.getElementById('modal-addcat').classList.remove('on');
-    return;
-  }
-  _origCloseModal(id,e);
-}
+// addcat is now a full view — no modal patching needed
 
 /* Load custom cats on init */
 mergeCustomCats();
