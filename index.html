@@ -384,7 +384,10 @@ let selCat  ='comida';
 let selRCat ='suscri';
 let isRecur =false;
 const now   =new Date();
-let curY    =now.getFullYear(),curM=now.getMonth();
+// Restore last viewed month if saved, otherwise use current month
+const _savedMonth = JSON.parse(localStorage.getItem('gt_curMonth')||'null');
+let curY = _savedMonth ? _savedMonth.y : now.getFullYear();
+let curM = _savedMonth ? _savedMonth.m : now.getMonth();
 
 function saveAll(){localStorage.setItem('gt_e',JSON.stringify(all));}
 function saveRecur(){localStorage.setItem('gt_r',JSON.stringify(recuring));}
@@ -535,6 +538,13 @@ function update(){
   const pf=document.getElementById('pfill');
   pf.style.width=pct+'%';pf.style.background=pct>90?'#FF3333':pct>70?'#FFB020':'var(--red)';
   document.getElementById('mtxt').textContent=MONTHS[curM]+' '+curY;
+  // Highlight pill if not current month
+  const pill=document.getElementById('mpill');
+  if(pill){
+    const isCurrentMonth=(curY===now.getFullYear()&&curM===now.getMonth());
+    pill.style.borderColor=isCurrentMonth?'rgba(255,255,255,0.13)':'rgba(255,176,32,0.5)';
+    pill.style.color=isCurrentMonth?'var(--sub)':'var(--amber)';
+  }
   const todayStart=new Date();todayStart.setHours(0,0,0,0);
   const todayAmt=me.filter(e=>new Date(e.ts)>=todayStart).reduce((a,e)=>a+e.amount,0);
   document.getElementById('chip-today').textContent='Hoy: '+todayAmt.toFixed(0)+' €';
@@ -655,17 +665,25 @@ function updateHist(){
     const exps=getME(y,m),total=exps.reduce((a,e)=>a+e.amount,0);
     const budget=budgets[key]||BUDGET_DEFAULT,pct=Math.min(100,budget>0?total/budget*100:0);
     const active=y===curY&&m===curM;
-    return`<div class="hm" onclick="goMonth(${y},${m})" style="${active?'border-color:var(--red);':''}">
-      <div class="hmtop">
+    return`<div class="hm" style="${active?'border-color:var(--red);':''}">
+      <div class="hmtop" onclick="goMonth(${y},${m})" style="cursor:pointer">
         <div><div class="hmname">${MONTHS[m]} ${y}${active?' · actual':''}</div><div class="hmsub">${exps.length} gastos · ${pct.toFixed(0)}% del presupuesto</div></div>
         <div class="hmamt">${total.toFixed(0)} €</div>
       </div>
       <div class="hmprog"><div class="hmfill" style="width:${pct}%;background:${pct>90?'#FF3333':pct>70?'#FFB020':'var(--red)'}"></div></div>
+      <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--sub)">${exps.length} gastos registrados</span>
+        <button onclick="event.stopPropagation();exportMonthCSV(${y},${m})" style="background:none;border:.5px solid var(--bd2);border-radius:8px;padding:5px 14px;font-size:11px;color:var(--sub);cursor:pointer;font-family:var(--body);transition:color .15s" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--sub)'">↓ Excel</button>
+      </div>
     </div>`;
   }).join('');
 }
 
-function goMonth(y,m){curY=y;curM=m;update();sv('home');}
+function goMonth(y,m){
+  curY=y;curM=m;
+  localStorage.setItem('gt_curMonth',JSON.stringify({y,m}));
+  update();sv('home');
+}
 
 function buildMonthList(){
   const months=[];
@@ -821,6 +839,48 @@ function suggestBudget(){
   const avg=months.reduce((a,b)=>a+b,0)/months.length;
   return Math.round(avg*0.93/10)*10;
 }
+
+/* ── EXPORT TO CSV (Excel-compatible) ── */
+function exportCSV(){
+  const me=getME(curY,curM);
+  if(!me.length){toast('Sin gastos este mes');return;}
+  csvDownload(me, MONTHS[curM]+'_'+curY);
+}
+
+function exportAllCSV(){
+  if(!all.length){toast('Sin gastos registrados');return;}
+  csvDownload(all,'Todos_los_gastos_'+curY);
+}
+
+function exportMonthCSV(y,m){
+  const me=getME(y,m);
+  if(!me.length){toast('Sin gastos ese mes');return;}
+  csvDownload(me, MONTHS[m]+'_'+y);
+}
+
+function csvDownload(expenses, filename){
+  const BOM = '\uFEFF'; // UTF-8 BOM for Excel
+  const header = ['Fecha','Hora','Categoría','Nota','Importe (€)','Mes','Año'].join(';');
+  const rows = expenses
+    .sort((a,b)=>a.ts-b.ts)
+    .map(e=>{
+      const d = new Date(e.ts);
+      const cat = CATS.find(c=>c.id===e.cat)||CATS[7];
+      const fecha = d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
+      const hora  = d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+      const nota  = (e.note||'').replace(/;/g,',');
+      const imp   = e.amount.toFixed(2).replace('.',',');
+      return [fecha, hora, cat.lb, nota, imp, MONTHS[d.getMonth()], d.getFullYear()].join(';');
+    });
+  const csv = BOM + header + '\n' + rows.join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href=url; a.download=filename+'.csv'; a.click();
+  URL.revokeObjectURL(url);
+  toast('Descargado: '+filename+'.csv');
+}
+
 /* ── SWIPE TO DELETE ── */
 (function(){
   let startX,startY,el;
