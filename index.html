@@ -394,27 +394,27 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   <div style="padding:0 20px">
     <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:12px">Nuevo gasto fijo</div>
     <div style="background:var(--s1);border:0.5px solid var(--bd2);border-radius:18px;padding:18px;margin-bottom:24px">
-      <input type="text" id="rname" placeholder="Nombre (ej: Spotify, Gimnasio...)"
+      <input type="text" id="rname" placeholder="Nombre (ej: Spotify, Gym...)"
         style="width:100%;background:var(--s2);border:0.5px solid var(--bd);border-radius:11px;padding:13px 14px;font-family:var(--body);font-size:15px;font-weight:600;color:var(--text);outline:none;margin-bottom:12px;-webkit-appearance:none;transition:border .2s"
         onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--bd)'">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
         <input type="number" id="ramt" placeholder="0.00" inputmode="decimal"
           style="flex:1;background:var(--s2);border:0.5px solid var(--bd);border-radius:11px;padding:12px 14px;font-family:var(--disp);font-size:20px;font-weight:700;color:var(--text);outline:none;text-align:right;-webkit-appearance:none;transition:border .2s"
           onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--bd)'">
-        <span style="font-size:14px;color:var(--sub);font-weight:600">€/mes</span>
+        <span style="font-size:14px;color:var(--sub);font-weight:600;white-space:nowrap">€ / mes</span>
       </div>
       <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:10px">Categoría</div>
       <div class="rm-cats" id="rm-cats" style="margin-bottom:16px"></div>
-      <button onclick="addRecur();renderRecurList()" style="width:100%;background:var(--accent);border:none;border-radius:13px;padding:14px;font-family:var(--disp);font-size:15px;font-weight:700;color:#000;cursor:pointer">
+      <button onclick="addRecur()" style="width:100%;background:var(--accent);border:none;border-radius:13px;padding:14px;font-family:var(--disp);font-size:15px;font-weight:700;color:#000;cursor:pointer;transition:opacity .15s">
         + Añadir gasto fijo
       </button>
     </div>
-    <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:12px">Gastos fijos activos</div>
+    <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:12px">Activos</div>
     <div id="recur-full-list"></div>
   </div>
 </div>
 
-<!-- NAV -->
+<!-- NAV --><!-- NAV -->
 <div class="bnav">
   <div class="ni on" id="nav-home" onclick="sv('home')">
     <svg class="niic" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><rect x="3" y="10" width="18" height="11" rx="2"/><path d="M3 10l9-7 9 7"/></svg>
@@ -689,7 +689,7 @@ function addRecur(){
   all.push({ts:Date.now(),amount:amt,cat:selRCat,note:name,y:curY,m:curM,recurId:rid,isRecur:true});
   saveAll();update();
   document.getElementById('rname').value='';document.getElementById('ramt').value='';
-  closeModal('recur');toast(name+' añadido como fijo');
+  renderRecurList();update();toast(name+' añadido como fijo');
 }
 
 function delRecur(id){
@@ -724,7 +724,7 @@ function update(){
   const todayAmt=me.filter(e=>new Date(e.ts)>=todayStart).reduce((a,e)=>a+e.amount,0);
   document.getElementById('chip-today').textContent='Hoy: '+todayAmt.toFixed(0)+' €';
   renderRecur();renderList(me);
-  if(curY===now.getFullYear()&&curM===now.getMonth())checkShowSummary();
+  try{if(curY===now.getFullYear()&&curM===now.getMonth())checkShowSummary();}catch(e){}
 }
 
 function renderRecurList(){
