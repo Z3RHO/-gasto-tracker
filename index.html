@@ -256,7 +256,10 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   </div>
 
   <div class="prog">
-    <div class="prog-row"><span id="plbl">0% del presupuesto</span><span id="pbudget">límite: 900 €</span></div>
+    <div class="prog-row">
+      <span id="plbl">0% del presupuesto</span>
+      <span id="pbudget" onclick="editBudget()" style="cursor:pointer;border-bottom:0.5px dashed var(--hint);padding-bottom:1px;transition:color .15s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color=''">límite: 900 €  ✎</span>
+    </div>
     <div class="prog-track"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
   </div>
 
@@ -362,7 +365,7 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
         <div style="flex:1">
           <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:8px">Límite mensual</div>
           <div style="display:flex;align-items:center;gap:8px">
-            <input type="number" id="newcat-limit" placeholder="100" inputmode="decimal"
+            <input type="number" id="newcat-limit" placeholder="Sin límite" inputmode="decimal"
               style="flex:1;background:var(--s2);border:0.5px solid var(--bd);border-radius:11px;padding:12px 14px;font-family:var(--disp);font-size:18px;font-weight:700;color:var(--text);outline:none;text-align:right;-webkit-appearance:none;transition:border .2s"
               onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--bd)'">
             <span style="font-size:14px;color:var(--sub);font-weight:600">€/mes</span>
@@ -379,6 +382,35 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
     <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:12px">Personalizadas</div>
     <div id="custom-cats-list"></div>
 
+  </div>
+</div>
+
+<!-- RECUR VIEW -->
+<div class="view" id="view-recur">
+  <div style="padding:52px 20px 0;display:flex;align-items:center;gap:14px;border-bottom:0.5px solid var(--bd);padding-bottom:22px;margin-bottom:24px">
+    <button onclick="sv('home')" style="background:none;border:none;color:var(--sub);font-size:22px;cursor:pointer;line-height:1;padding:4px">←</button>
+    <div style="font-family:var(--disp);font-size:18px;font-weight:700;color:var(--text)">Gastos fijos</div>
+  </div>
+  <div style="padding:0 20px">
+    <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:12px">Nuevo gasto fijo</div>
+    <div style="background:var(--s1);border:0.5px solid var(--bd2);border-radius:18px;padding:18px;margin-bottom:24px">
+      <input type="text" id="rname" placeholder="Nombre (ej: Spotify, Gimnasio...)"
+        style="width:100%;background:var(--s2);border:0.5px solid var(--bd);border-radius:11px;padding:13px 14px;font-family:var(--body);font-size:15px;font-weight:600;color:var(--text);outline:none;margin-bottom:12px;-webkit-appearance:none;transition:border .2s"
+        onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--bd)'">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <input type="number" id="ramt" placeholder="0.00" inputmode="decimal"
+          style="flex:1;background:var(--s2);border:0.5px solid var(--bd);border-radius:11px;padding:12px 14px;font-family:var(--disp);font-size:20px;font-weight:700;color:var(--text);outline:none;text-align:right;-webkit-appearance:none;transition:border .2s"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--bd)'">
+        <span style="font-size:14px;color:var(--sub);font-weight:600">€/mes</span>
+      </div>
+      <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:10px">Categoría</div>
+      <div class="rm-cats" id="rm-cats" style="margin-bottom:16px"></div>
+      <button onclick="addRecur();renderRecurList()" style="width:100%;background:var(--accent);border:none;border-radius:13px;padding:14px;font-family:var(--disp);font-size:15px;font-weight:700;color:#000;cursor:pointer">
+        + Añadir gasto fijo
+      </button>
+    </div>
+    <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:12px">Gastos fijos activos</div>
+    <div id="recur-full-list"></div>
   </div>
 </div>
 
@@ -405,15 +437,6 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 <!-- MODALS -->
 <div class="mbg" id="modal-month" onclick="closeModal('month',event)">
   <div class="modal"><div class="mtitle">Seleccionar mes</div><div id="mlist"></div></div>
-</div>
-<div class="mbg" id="modal-recur" onclick="closeModal('recur',event)">
-  <div class="modal">
-    <div class="mtitle">Gasto fijo mensual</div>
-    <div class="rm-row"><div class="rm-lbl">Nombre</div><input type="text" class="rm-in" id="rname" placeholder="ej: Spotify"></div>
-    <div class="rm-row"><div class="rm-lbl">Importe</div><input type="number" class="rm-in" id="ramt" placeholder="9.99" inputmode="decimal"></div>
-    <div class="rm-row"><div class="rm-lbl">Categoría</div><div class="rm-cats" id="rm-cats"></div></div>
-    <button class="rm-btn" onclick="addRecur()">Añadir gasto fijo</button>
-  </div>
 </div>
 <div class="mbg" id="modal-summary" onclick="closeModal('summary',event)">
   <div class="modal"><div id="summary-content"></div><button onclick="closeModal('summary')" style="width:100%;background:var(--accent);border:none;border-radius:13px;padding:13px;font-family:var(--disp);font-size:14px;font-weight:700;color:#000;cursor:pointer;margin-top:16px">Continuar →</button></div>
@@ -470,10 +493,62 @@ let curM = _savedMonth ? _savedMonth.m : now.getMonth();
 function saveAll(){localStorage.setItem('gt_e',JSON.stringify(all));}
 function saveRecur(){localStorage.setItem('gt_r',JSON.stringify(recuring));}
 function saveLimits(){localStorage.setItem('gt_cl',JSON.stringify(catLimits));}
+
+function editBudget(){
+  const current = getBudget();
+  const el = document.getElementById('pbudget');
+
+  // Replace label with inline input
+  el.innerHTML = '';
+  const inp = document.createElement('input');
+  inp.type = 'number';
+  inp.value = current;
+  inp.min = 0;
+  inp.step = 50;
+  inp.style.cssText = 'width:110px;background:var(--s2);border:0.5px solid var(--accent);border-radius:8px;padding:3px 8px;font-family:var(--disp);font-size:12px;font-weight:700;color:var(--accent);outline:none;text-align:right;-webkit-appearance:none';
+  inp.inputMode = 'numeric';
+
+  const lbl = document.createElement('span');
+  lbl.textContent = ' €  ';
+  lbl.style.cssText = 'font-size:12px;color:var(--sub);';
+
+  const confirmBtn = document.createElement('button');
+  confirmBtn.textContent = '✓';
+  confirmBtn.style.cssText = 'background:var(--accent);border:none;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700;color:#000;cursor:pointer;margin-left:4px';
+
+  function save(){
+    const val = parseInt(inp.value)||BUDGET_DEFAULT;
+    budgets[curY+'_'+curM] = val;
+    localStorage.setItem('gt_b', JSON.stringify(budgets));
+    update();
+    toast('Presupuesto: '+val+' €');
+  }
+
+  confirmBtn.onclick = save;
+  inp.onkeydown = e => { if(e.key==='Enter') save(); if(e.key==='Escape') update(); };
+  inp.onblur = e => { if(e.relatedTarget!==confirmBtn) setTimeout(()=>update(),200); };
+
+  el.appendChild(inp);
+  el.appendChild(lbl);
+  el.appendChild(confirmBtn);
+  el.style.cursor = 'default';
+  el.removeAttribute('onclick');
+  inp.focus();
+  inp.select();
+}
 function updateLimit(el){
   const catId=el.dataset.cat;
-  const val=+el.value;
-  if(!catId||isNaN(val)||val<0)return;
+  const raw=el.value.trim();
+  if(!catId)return;
+  // Empty = no limit
+  if(raw===''||raw==='0'){
+    delete catLimits[catId];
+    saveLimits();
+    updateStats();
+    return;
+  }
+  const val=+raw;
+  if(isNaN(val)||val<0)return;
   catLimits[catId]=val;
   saveLimits();
   const me=getME(curY,curM);
@@ -652,10 +727,31 @@ function update(){
   if(curY===now.getFullYear()&&curM===now.getMonth())checkShowSummary();
 }
 
+function renderRecurList(){
+  const el=document.getElementById('recur-full-list');
+  if(!el)return;
+  if(!recuring.length){
+    el.innerHTML='<div style="text-align:center;padding:32px 0;color:var(--hint);font-size:13px;font-style:italic">Sin gastos fijos aún</div>';
+    return;
+  }
+  el.innerHTML=recuring.map(r=>{
+    const cat=CATS.find(c=>c.id===r.cat)||CATS[7];
+    return`<div style="display:flex;align-items:center;background:var(--s1);border:0.5px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:8px;gap:12px">
+      <div style="width:42px;height:42px;border-radius:12px;background:${cat.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="color:${cat.col};width:22px;height:22px">${SVGS[cat.id]}</div></div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:600;color:var(--text)">${r.name}</div>
+        <div style="font-size:11px;color:var(--sub);margin-top:2px">${cat.lb} · mensual</div>
+      </div>
+      <div style="font-family:var(--disp);font-size:16px;font-weight:700;color:${cat.col}">${r.amount.toFixed(2)} €</div>
+      <button onclick="delRecur(${r.id});renderRecurList()" style="background:none;border:none;color:var(--hint);cursor:pointer;font-size:18px;transition:color .15s" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--hint)'">×</button>
+    </div>`;
+  }).join('');
+}
+
 function renderRecur(){
   const el=document.getElementById('recur-list');
   if(!recuring.length){
-    el.innerHTML=`<div class="ritem-add" onclick="openModal('recur')">+ Añadir suscripción o gasto fijo mensual</div>`;
+    el.innerHTML=`<div class="ritem-add" onclick="sv('recur');buildRCats();renderRecurList()">+ Añadir suscripción o gasto fijo mensual</div>`;
     return;
   }
   el.innerHTML=recuring.map(r=>{
@@ -669,7 +765,7 @@ function renderRecur(){
       <div class="ritem-amt" style="color:${cat.col}">${r.amount.toFixed(2)} €</div>
       <button class="ritem-del" onclick="delRecur(${r.id})">×</button>
     </div>`;
-  }).join('')+`<div class="ritem-add" onclick="openModal('recur')" style="margin-top:7px">+ Añadir otro</div>`;
+  }).join('')+`<div class="ritem-add" onclick="sv('recur');buildRCats();renderRecurList()" style="margin-top:7px">+ Añadir otro</div>`;
 }
 
 function renderList(me){
@@ -735,8 +831,9 @@ function updateStats(){
   }
   document.getElementById('catlimits').innerHTML=CATS.map(cat=>{
     const s=spent[cat.id]||0;
-    const lim=catLimits[cat.id]||cat.lim;
-    const pct=Math.min(100,lim>0?s/lim*100:0);
+    const lim=catLimits[cat.id]!=null?catLimits[cat.id]:(cat.lim||null);
+    const hasLim=lim>0;
+    const pct=hasLim?Math.min(100,s/lim*100):0;
     const barColor=pct>90?'var(--red)':pct>70?'var(--amber)':cat.col;
     return`<div class="cat-limit-card">
       <div class="cl-row">
@@ -744,14 +841,14 @@ function updateStats(){
         <div class="cl-name">${cat.lb}</div>
         <div class="cl-bars">
           <div class="cl-bar-row">
-            <span style="color:${barColor};font-weight:600;font-size:11px">${s.toFixed(0)} € gastado</span>
-            <span style="color:var(--hint)">${pct.toFixed(0)}%</span>
+            <span style="color:${cat.col};font-weight:600;font-size:11px">${s.toFixed(0)} € gastado</span>
+            <span style="color:var(--hint)">${hasLim?pct.toFixed(0)+'%':'sin límite'}</span>
           </div>
-          <div class="cl-track"><div class="cl-fill" style="width:${pct}%;background:${barColor}"></div></div>
+          ${hasLim?`<div class="cl-track"><div class="cl-fill" style="width:${pct}%;background:${barColor}"></div></div>`:'<div class="cl-track"><div style="height:100%;border-radius:2px;background:var(--hint);width:100%;opacity:.2"></div></div>'}
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
-          <input type="number" class="cl-limit-in" value="${lim}" min="0" step="10"
-            data-cat="${cat.id}" oninput="updateLimit(this)"
+          <input type="number" class="cl-limit-in" value="${hasLim?lim:''}" min="0" step="10"
+            placeholder="∞" data-cat="${cat.id}" oninput="updateLimit(this)"
             style="width:70px;-webkit-appearance:none;appearance:none;min-height:36px">
           <span style="font-size:9px;color:var(--hint);font-weight:500">límite €</span>
         </div>
@@ -1078,7 +1175,7 @@ function renderCustomCatsList(){
       </div>
       <div style="flex:1">
         <div style="font-size:13px;font-weight:600;color:var(--text)">${cc.lb}</div>
-        <div style="font-size:11px;color:var(--sub);margin-top:2px">Límite: <span style="color:var(--accent);font-weight:600">${cc.lim||100} €</span>/mes</div>
+        <div style="font-size:11px;color:var(--sub);margin-top:2px">${cc.lim?'Límite: <span style=\"color:var(--accent);font-weight:600\">'+cc.lim+' €</span>/mes':'<span style=\"color:var(--hint)\">Sin límite</span>'}</div>
       </div>
       <button onclick="deleteCustomCat('${cc.id}')"
         style="width:28px;height:28px;background:rgba(255,77,77,0.08);border:0.5px solid rgba(255,77,77,0.2);border-radius:50%;color:var(--red);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s"
@@ -1091,6 +1188,8 @@ function addCustomCat(){
   const lim  = parseFloat(document.getElementById('newcat-limit').value)||100;
   if(!name){ toast('Escribe un nombre'); return; }
 
+  const limVal = parseFloat(document.getElementById('newcat-limit').value);
+  const lim = isNaN(limVal) || limVal <= 0 ? null : limVal;
   const id = 'custom_'+Date.now();
   const col = selectedCatColor;
   const bg  = col+'22';  // 13% opacity
@@ -1098,7 +1197,7 @@ function addCustomCat(){
   // Build SVG for custom cat — simple circle with initial
   const initSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><text x="12" y="16" text-anchor="middle" font-size="10" fill="currentColor" stroke="none" font-family="sans-serif">${name[0].toUpperCase()}</text></svg>`;
 
-  const newCat = { id, lb: name, col, bg, lim };
+  const newCat = { id, lb: name, col, bg, lim: lim };
   const custom = loadCustomCats();
   custom.push(newCat);
   saveCustomCats(custom);
@@ -1108,7 +1207,7 @@ function addCustomCat(){
 
   // Add to CATS array
   CATS.push(newCat);
-  catLimits[id] = lim;
+  if(lim) catLimits[id] = lim;
   saveLimits();
 
   // Rebuild UI
