@@ -373,26 +373,42 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 
 <!-- ADD CATEGORY MODAL -->
 <div class="mbg" id="modal-addcat">
-  <div class="modal">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-      <div class="mtitle" style="margin-bottom:0">Nueva categoría</div>
-      <button onclick="closeModal('addcat')" style="background:none;border:none;font-size:24px;color:var(--sub);cursor:pointer;line-height:1;padding:0 4px">×</button>
+  <div class="modal" style="padding:24px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div style="font-family:var(--disp);font-size:18px;font-weight:700;color:var(--text)">Nueva categoría</div>
+      <button onclick="closeModal('addcat')" style="width:32px;height:32px;background:var(--s2);border:0.5px solid var(--bd2);border-radius:50%;font-size:18px;color:var(--sub);cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;transition:all .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--sub)'">×</button>
     </div>
-    <div class="rm-row">
-      <div class="rm-lbl">Nombre</div>
-      <input type="text" class="rm-in" id="newcat-name" placeholder="ej: Gimnasio, Mascota...">
+
+    <!-- nombre -->
+    <div style="margin-bottom:16px">
+      <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:8px">Nombre</div>
+      <input type="text" class="rm-in" id="newcat-name" placeholder="ej: Gimnasio, Mascota, Ahorro..."
+        style="font-size:16px;font-weight:600;padding:14px">
     </div>
-    <div class="rm-row">
-      <div class="rm-lbl">Color</div>
-      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:4px" id="color-picker"></div>
+
+    <!-- color -->
+    <div style="margin-bottom:16px">
+      <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:10px">Color</div>
+      <div id="color-picker" style="display:flex;gap:10px;flex-wrap:wrap"></div>
     </div>
-    <div class="rm-row">
-      <div class="rm-lbl">Límite mensual (€)</div>
-      <input type="number" class="rm-in" id="newcat-limit" placeholder="100" inputmode="decimal">
+
+    <!-- limite -->
+    <div style="margin-bottom:20px">
+      <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:8px">Límite mensual</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input type="number" class="rm-in" id="newcat-limit" placeholder="100" inputmode="decimal"
+          style="font-size:18px;font-weight:700;font-family:var(--disp);text-align:right;padding:12px 14px">
+        <span style="font-size:14px;color:var(--sub);font-weight:600;white-space:nowrap">€ / mes</span>
+      </div>
     </div>
-    <button class="rm-btn" onclick="addCustomCat()">Añadir categoría</button>
-    <div style="margin-top:12px">
-      <div class="rm-lbl" style="margin-bottom:8px">Categorías personalizadas</div>
+
+    <button class="rm-btn" onclick="addCustomCat()" style="font-size:15px;padding:15px">
+      + Añadir categoría
+    </button>
+
+    <!-- lista existentes -->
+    <div style="margin-top:20px;padding-top:16px;border-top:0.5px solid var(--bd)">
+      <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:10px">Tus categorías personalizadas</div>
       <div id="custom-cats-list"></div>
     </div>
   </div>
@@ -428,7 +444,13 @@ const BUDGET_DEFAULT=900;
 
 let all     =JSON.parse(localStorage.getItem('gt_e')||'[]');
 let recuring=JSON.parse(localStorage.getItem('gt_r')||'[]');
-let catLimits=JSON.parse(localStorage.getItem('gt_cl')||JSON.stringify(Object.fromEntries(CATS.map(c=>[c.id,c.lim]))));
+// Load saved limits, then ensure ALL cats have a default
+let catLimits=(function(){
+  const saved=JSON.parse(localStorage.getItem('gt_cl')||'{}');
+  // Fill in any missing cats with their default limit
+  CATS.forEach(c=>{ if(saved[c.id]===undefined) saved[c.id]=c.lim||100; });
+  return saved;
+})();
 let budgets =JSON.parse(localStorage.getItem('gt_b')||'{}');
 let selCat  ='comida';
 let selRCat ='suscri';
@@ -1022,9 +1044,11 @@ function buildColorPicker(){
   const el = document.getElementById('color-picker');
   if(!el) return;
   el.innerHTML = CAT_COLORS.map(col => `
-    <div onclick="selectColor('${col}')" id="cp-${col.replace('#','')}"
-      style="width:100%;aspect-ratio:1;border-radius:50%;background:${col};cursor:pointer;
-      border:2px solid ${col===selectedCatColor?'#fff':'transparent'};transition:border .15s">
+    <div onclick="selectColor('${col}')"
+      style="width:36px;height:36px;border-radius:50%;background:${col};cursor:pointer;flex-shrink:0;
+      border:2.5px solid ${col===selectedCatColor?'#fff':'transparent'};
+      box-shadow:${col===selectedCatColor?'0 0 0 3px '+col+'44':'none'};
+      transition:all .15s;transform:${col===selectedCatColor?'scale(1.15)':'scale(1)'}">
     </div>`).join('');
 }
 
