@@ -1162,9 +1162,7 @@ function renderCustomCatsList(){
 
 function addCustomCat(){
   const name = document.getElementById('newcat-name').value.trim();
-  const lim  = parseFloat(document.getElementById('newcat-limit').value)||100;
   if(!name){ toast('Escribe un nombre'); return; }
-
   const limVal = parseFloat(document.getElementById('newcat-limit').value);
   const lim = isNaN(limVal) || limVal <= 0 ? null : limVal;
   const id = 'custom_'+Date.now();
