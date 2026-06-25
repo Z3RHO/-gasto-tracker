@@ -393,7 +393,10 @@ function saveAll(){localStorage.setItem('gt_e',JSON.stringify(all));}
 function saveRecur(){localStorage.setItem('gt_r',JSON.stringify(recuring));}
 function saveLimits(){localStorage.setItem('gt_cl',JSON.stringify(catLimits));}
 function getBudget(){return budgets[curY+'_'+curM]||BUDGET_DEFAULT;}
-function getME(y,m){return all.filter(e=>{const d=new Date(e.ts);return d.getFullYear()===y&&d.getMonth()===m;});}
+function getME(y,m){return all.filter(e=>{
+  if(e.y!==undefined&&e.m!==undefined)return e.y===y&&e.m===m;
+  const d=new Date(e.ts);return d.getFullYear()===y&&d.getMonth()===m;
+});}
 
 /* WEB CANVAS */
 (function(){
@@ -697,7 +700,11 @@ function buildMonthList(){
   }).join('');
 }
 
-function selMonth(y,m){curY=y;curM=m;update();closeModal('month');}
+function selMonth(y,m){
+  curY=y;curM=m;
+  localStorage.setItem('gt_curMonth',JSON.stringify({y,m}));
+  update();closeModal('month');
+}
 
 function openModal(id){
   if(id==='month')buildMonthList();
