@@ -43,8 +43,8 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 /* HERO */
 .hero{padding:4px 20px 20px;}
 .hero-lbl{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;font-weight:500;}
-.hero-amt{font-family:var(--disp);font-size:56px;font-weight:700;letter-spacing:-3px;line-height:1;}
-.hero-amt .dec{font-size:30px;color:var(--sub);font-weight:400;}
+.hero-amt{font-family:var(--disp);font-size:clamp(32px,11vw,52px);font-weight:700;letter-spacing:-2px;line-height:1;word-break:break-all;overflow-wrap:anywhere;}
+.hero-amt .dec{font-size:clamp(18px,6vw,28px);color:var(--sub);font-weight:400;}
 .hero-chips{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
 .chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:5px 12px;border-radius:20px;border:0.5px solid;}
 .chip-g{color:var(--green);border-color:rgba(77,255,145,0.2);background:rgba(77,255,145,0.06);}
@@ -59,10 +59,10 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 
 /* QUICK ADD */
 .qa{padding:0 20px 20px;}
-.qa-card{background:var(--s1);border:0.5px solid var(--bd2);border-radius:20px;padding:18px;}
-.qa-top{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.qa-card{background:var(--s1);border:0.5px solid var(--bd2);border-radius:20px;padding:16px;overflow:hidden;}
+.qa-top{display:flex;align-items:center;gap:10px;margin-bottom:14px;overflow:hidden;}
 .qa-sign{font-family:var(--disp);font-size:28px;font-weight:700;color:var(--accent);}
-.qa-in{flex:1;background:var(--s2);border:0.5px solid var(--bd2);border-radius:12px;padding:12px 14px;font-family:var(--disp);font-size:26px;font-weight:700;color:var(--text);outline:none;-webkit-appearance:none;transition:border .2s;}
+.qa-in{flex:1;min-width:0;background:var(--s2);border:0.5px solid var(--bd2);border-radius:12px;padding:12px 14px;font-family:var(--disp);font-size:clamp(20px,6vw,26px);font-weight:700;color:var(--text);outline:none;-webkit-appearance:none;transition:border .2s;width:100%;}
 .qa-in:focus{border-color:var(--accent);}
 .qa-in::placeholder{color:var(--hint);}
 
@@ -372,9 +372,12 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 </div>
 
 <!-- ADD CATEGORY MODAL -->
-<div class="mbg" id="modal-addcat" onclick="closeModal('addcat',event)">
+<div class="mbg" id="modal-addcat">
   <div class="modal">
-    <div class="mtitle">Nueva categoría</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div class="mtitle" style="margin-bottom:0">Nueva categoría</div>
+      <button onclick="closeModal('addcat')" style="background:none;border:none;font-size:24px;color:var(--sub);cursor:pointer;line-height:1;padding:0 4px">×</button>
+    </div>
     <div class="rm-row">
       <div class="rm-lbl">Nombre</div>
       <input type="text" class="rm-in" id="newcat-name" placeholder="ej: Gimnasio, Mascota...">
@@ -442,22 +445,19 @@ function saveLimits(){localStorage.setItem('gt_cl',JSON.stringify(catLimits));}
 function updateLimit(el){
   const catId=el.dataset.cat;
   const val=+el.value;
-  if(!catId||isNaN(val))return;
+  if(!catId||isNaN(val)||val<0)return;
   catLimits[catId]=val;
   saveLimits();
-  // Update bar and text in real time without full re-render
   const me=getME(curY,curM);
   const spent=me.filter(e=>e.cat===catId).reduce((a,e)=>a+e.amount,0);
   const pct=Math.min(100,val>0?spent/val*100:0);
-  const barColor=pct>90?'#FF3333':pct>70?'#FFB020':'#58A6FF';
-  const row=el.closest('.cl-row');
-  if(row){
-    const bar=row.querySelector('.cl-fill');
-    const label=row.querySelector('.cl-bar-row span:last-child');
-    const topLabel=row.querySelector('.cl-bar-row span:first-child');
-    if(bar)bar.style.width=pct+'%';
-    if(bar)bar.style.background=barColor;
-    if(label)label.textContent='/ '+val+' €';
+  const barColor=pct>90?'var(--red)':pct>70?'var(--amber)':'var(--accent)';
+  const card=el.closest('.cat-limit-card');
+  if(card){
+    const bar=card.querySelector('.cl-fill');
+    const limLabel=card.querySelector('.cl-bar-row span:last-child');
+    if(bar){bar.style.width=pct+'%';bar.style.background=barColor;}
+    if(limLabel)limLabel.textContent='/ '+val+' €';
   }
 }
 function getBudget(){return budgets[curY+'_'+curM]||BUDGET_DEFAULT;}
@@ -598,8 +598,9 @@ function update(){
   autoAddRecurrents();
   const me=getME(curY,curM),total=me.reduce((a,e)=>a+e.amount,0),budget=getBudget(),left=budget-total;
   const pct=Math.min(100,budget>0?total/budget*100:0);
-  const p=total.toFixed(2).split('.');
-  document.getElementById('hnum').innerHTML=p[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.')+`<span class="dec">,${p[1]} €</span>`;
+  const rawTotal=total.toFixed(2).split('.');
+  const intPart=rawTotal[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+  document.getElementById('hnum').innerHTML=intPart+`<span class="dec">,${rawTotal[1]} €</span>`;
   const cl=document.getElementById('chip-left');
   cl.textContent=(left>=0?'↑ '+left.toFixed(0)+' € disponibles':'↓ '+Math.abs(left).toFixed(0)+' € excedido');
   cl.className='chip '+(left>=0?'chip-g':'chip-r');
@@ -708,18 +709,24 @@ function updateStats(){
     const s=spent[cat.id]||0;
     const lim=catLimits[cat.id]||cat.lim;
     const pct=Math.min(100,lim>0?s/lim*100:0);
-    const barColor=pct>90?'#FF3333':pct>70?'#FFB020':cat.col;
+    const barColor=pct>90?'var(--red)':pct>70?'var(--amber)':cat.col;
     return`<div class="cat-limit-card">
       <div class="cl-row">
         <div class="cl-ic" style="background:${cat.bg}"><div style="color:${cat.col}">${SVGS[cat.id]}</div></div>
         <div class="cl-name">${cat.lb}</div>
         <div class="cl-bars">
-          <div class="cl-bar-row"><span style="color:${barColor};font-weight:500">${s.toFixed(0)} €</span><span>/ ${lim} €</span></div>
+          <div class="cl-bar-row">
+            <span style="color:${barColor};font-weight:600;font-size:11px">${s.toFixed(0)} € gastado</span>
+            <span style="color:var(--hint)">${pct.toFixed(0)}%</span>
+          </div>
           <div class="cl-track"><div class="cl-fill" style="width:${pct}%;background:${barColor}"></div></div>
         </div>
-        <input type="number" class="cl-limit-in" value="${lim}" min="0" step="10"
-          data-cat="${cat.id}"
-          oninput="updateLimit(this)">
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+          <input type="number" class="cl-limit-in" value="${lim}" min="0" step="10"
+            data-cat="${cat.id}" oninput="updateLimit(this)"
+            style="width:70px;-webkit-appearance:none;appearance:none;min-height:36px">
+          <span style="font-size:9px;color:var(--hint);font-weight:500">límite €</span>
+        </div>
       </div>
     </div>`;
   }).join('');
