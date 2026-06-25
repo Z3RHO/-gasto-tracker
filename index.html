@@ -3,190 +3,228 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Gasto Tracker</title>
+<title>Gastos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#06060E;--s1:#0C0C18;--s2:#111120;--s3:#181828;
-  --bd:rgba(255,255,255,0.07);--bd2:rgba(255,255,255,0.13);
-  --text:#EEEEF8;--sub:#5858A8;--hint:#1E1E36;
-  --red:#CC2222;--red2:#FF4444;--red-dim:rgba(204,34,34,0.1);
-  --green:#00C880;--amber:#FFB020;--blue:#4488FF;
-  --disp:'Syne',sans-serif;--body:'Inter',sans-serif;
+  --bg:#0A0A0A;
+  --s1:#111111;
+  --s2:#1A1A1A;
+  --s3:#222222;
+  --bd:rgba(255,255,255,0.06);
+  --bd2:rgba(255,255,255,0.12);
+  --text:#F2F2F2;
+  --sub:#666666;
+  --hint:#333333;
+  --accent:#E8FF47;
+  --accent-dim:rgba(232,255,71,0.08);
+  --red:#FF4D4D;
+  --green:#4DFF91;
+  --amber:#FFB547;
+  --disp:'Space Grotesk',sans-serif;
+  --body:'Inter',sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{height:100%;background:var(--bg);}
-body{font-family:var(--body);color:var(--text);background:var(--bg);min-height:100%;max-width:430px;margin:0 auto;-webkit-tap-highlight-color:transparent;overflow-x:hidden;padding-bottom:90px;}
-#web-bg{position:fixed;top:0;left:0;width:100%;max-width:430px;height:100%;z-index:0;pointer-events:none;}
+body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:100%;max-width:430px;margin:0 auto;padding-bottom:90px;-webkit-tap-highlight-color:transparent;overflow-x:hidden;}
+
+/* CANVAS */
+#web-bg{position:fixed;top:0;left:0;width:100%;max-width:430px;height:100%;z-index:0;pointer-events:none;opacity:1;}
 .z{position:relative;z-index:1;}
 
-.hdr{padding:54px 22px 14px;display:flex;align-items:center;justify-content:space-between;}
-.logo{font-family:var(--disp);font-size:18px;font-weight:700;letter-spacing:-.5px;}
-.logo em{color:var(--red2);font-style:normal;}
-.mpill{font-size:11px;color:var(--sub);background:rgba(10,10,22,0.85);border:.5px solid var(--bd2);padding:5px 13px;border-radius:20px;cursor:pointer;backdrop-filter:blur(8px);}
+/* HEADER */
+.hdr{padding:52px 20px 16px;display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:var(--disp);font-size:17px;font-weight:700;letter-spacing:-0.5px;color:var(--text);}
+.logo em{color:var(--accent);font-style:normal;}
+.mpill{font-size:11px;color:var(--sub);background:var(--s2);border:0.5px solid var(--bd2);padding:6px 14px;border-radius:20px;cursor:pointer;transition:all .2s;font-weight:500;letter-spacing:0.3px;}
+.mpill:hover{border-color:var(--accent);color:var(--accent);}
 
-.hero{padding:4px 22px 18px;}
-.hlbl{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2.5px;margin-bottom:7px;}
-.hnum{font-family:var(--disp);font-size:52px;font-weight:700;letter-spacing:-3px;line-height:1;}
-.hnum .dec{font-size:28px;color:var(--sub);}
-.hrow{display:flex;gap:7px;margin-top:11px;flex-wrap:wrap;}
-.chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:4px 12px;border-radius:20px;border:.5px solid;}
-.cg{color:var(--green);border-color:rgba(0,200,128,.25);background:rgba(0,200,128,.06);}
-.cr{color:var(--red2);border-color:rgba(255,68,68,.25);background:rgba(255,68,68,.06);}
-.cs{color:var(--sub);border-color:var(--bd);background:transparent;}
+/* HERO */
+.hero{padding:4px 20px 20px;}
+.hero-lbl{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;font-weight:500;}
+.hero-amt{font-family:var(--disp);font-size:56px;font-weight:700;letter-spacing:-3px;line-height:1;}
+.hero-amt .dec{font-size:30px;color:var(--sub);font-weight:400;}
+.hero-chips{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:5px 12px;border-radius:20px;border:0.5px solid;}
+.chip-g{color:var(--green);border-color:rgba(77,255,145,0.2);background:rgba(77,255,145,0.06);}
+.chip-r{color:var(--red);border-color:rgba(255,77,77,0.2);background:rgba(255,77,77,0.06);}
+.chip-n{color:var(--sub);border-color:var(--bd);background:transparent;}
 
-.pw{padding:0 22px 18px;}
-.pr{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin-bottom:6px;}
-.pt{height:3px;background:var(--hint);border-radius:2px;overflow:hidden;}
-.pf{height:100%;border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+/* PROGRESS */
+.prog{padding:0 20px 20px;}
+.prog-row{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin-bottom:6px;font-weight:500;}
+.prog-track{height:3px;background:var(--hint);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1);}
 
-.qw{padding:0 22px 18px;}
-.qcard{background:rgba(10,10,22,0.9);border:.5px solid var(--bd2);border-radius:20px;padding:18px;backdrop-filter:blur(20px);}
-.qlbl{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;margin-bottom:13px;}
-.qtop{display:flex;align-items:center;gap:10px;margin-bottom:13px;}
-.qsign{font-family:var(--disp);font-size:30px;color:var(--red2);line-height:1;}
-.qin{flex:1;background:rgba(22,22,38,0.85);border:.5px solid var(--bd2);border-radius:12px;padding:11px 14px;font-family:var(--disp);font-size:26px;font-weight:600;color:var(--text);outline:none;transition:border .2s;-webkit-appearance:none;}
-.qin:focus{border-color:var(--red);}
-.qin::placeholder{color:var(--hint);}
+/* QUICK ADD */
+.qa{padding:0 20px 20px;}
+.qa-card{background:var(--s1);border:0.5px solid var(--bd2);border-radius:20px;padding:18px;}
+.qa-top{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.qa-sign{font-family:var(--disp);font-size:28px;font-weight:700;color:var(--accent);}
+.qa-in{flex:1;background:var(--s2);border:0.5px solid var(--bd2);border-radius:12px;padding:12px 14px;font-family:var(--disp);font-size:26px;font-weight:700;color:var(--text);outline:none;-webkit-appearance:none;transition:border .2s;}
+.qa-in:focus{border-color:var(--accent);}
+.qa-in::placeholder{color:var(--hint);}
 
+/* CATS */
 .cats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:13px;}
-.cat{background:rgba(22,22,38,0.7);border:.5px solid var(--bd);border-radius:12px;padding:10px 4px 8px;text-align:center;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:4px;}
-.cat:hover{border-color:var(--bd2);}
-.cat.on{background:var(--red-dim);border-color:rgba(204,34,34,.4);}
-.cat svg{width:22px;height:22px;opacity:.45;transition:opacity .15s;}
+.cat{background:var(--s2);border:0.5px solid var(--bd);border-radius:12px;padding:10px 4px 8px;text-align:center;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.cat.on{background:var(--accent-dim);border-color:rgba(232,255,71,0.35);}
+.cat svg{width:22px;height:22px;opacity:.4;transition:opacity .15s;}
 .cat.on svg{opacity:1;}
-.clb{font-size:10px;color:var(--sub);transition:color .15s;line-height:1;}
-.cat.on .clb{color:var(--red2);}
+.clb{font-size:10px;color:var(--sub);font-weight:500;transition:color .15s;}
+.cat.on .clb{color:var(--accent);}
 
-.recur-toggle{display:flex;align-items:center;gap:8px;margin-bottom:12px;cursor:pointer;}
-.recur-toggle input{display:none;}
-.toggle-track{width:36px;height:20px;background:var(--hint);border-radius:10px;position:relative;transition:background .2s;flex-shrink:0;}
-.toggle-track.on{background:var(--red);}
-.toggle-thumb{position:absolute;top:3px;left:3px;width:14px;height:14px;background:#fff;border-radius:50%;transition:left .2s;}
-.toggle-track.on .toggle-thumb{left:19px;}
-.toggle-lbl{font-size:12px;color:var(--sub);}
+/* RECUR TOGGLE */
+.rtog{display:flex;align-items:center;gap:8px;margin-bottom:12px;cursor:pointer;}
+.tog-track{width:36px;height:20px;background:var(--hint);border-radius:10px;position:relative;transition:background .2s;flex-shrink:0;}
+.tog-track.on{background:var(--accent);}
+.tog-thumb{position:absolute;top:3px;left:3px;width:14px;height:14px;background:#000;border-radius:50%;transition:left .2s;}
+.tog-track.on .tog-thumb{left:19px;}
+.rtog-lbl{font-size:12px;color:var(--sub);font-weight:500;}
 
-.nin{width:100%;background:rgba(22,22,38,0.7);border:.5px solid var(--bd);border-radius:11px;padding:9px 13px;font-family:var(--body);font-size:13px;color:var(--text);outline:none;margin-bottom:12px;transition:border .2s;}
+.nin{width:100%;background:var(--s2);border:0.5px solid var(--bd);border-radius:11px;padding:9px 13px;font-family:var(--body);font-size:13px;color:var(--text);outline:none;margin-bottom:12px;transition:border .2s;}
 .nin:focus{border-color:var(--bd2);}
 .nin::placeholder{color:var(--sub);}
-.abtn{width:100%;background:var(--red);border:none;border-radius:13px;padding:13px;font-family:var(--disp);font-size:14px;font-weight:600;color:#fff;cursor:pointer;letter-spacing:.3px;transition:all .15s;}
-.abtn:hover{background:var(--red2);}
+.abtn{width:100%;background:var(--accent);border:none;border-radius:13px;padding:14px;font-family:var(--disp);font-size:14px;font-weight:700;color:#000;cursor:pointer;transition:all .15s;letter-spacing:0.2px;}
+.abtn:hover{opacity:0.9;}
 .abtn:active{transform:scale(.98);}
 
 /* RECURRENTES */
-.recur-section{padding:0 22px 18px;}
-.rsect{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
-.rsect-add{font-size:11px;color:var(--red2);cursor:pointer;background:none;border:none;font-family:var(--body);}
-.ritem{display:flex;align-items:center;background:rgba(8,8,18,0.8);border:.5px solid var(--bd);border-radius:14px;padding:11px 14px;margin-bottom:7px;gap:11px;backdrop-filter:blur(8px);}
+.rs{padding:0 20px 18px;}
+.rsect{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;font-weight:600;}
+.rsadd{font-size:11px;color:var(--accent);background:none;border:none;cursor:pointer;font-family:var(--body);font-weight:600;}
+.ritem{display:flex;align-items:center;background:var(--s1);border:0.5px solid var(--bd);border-radius:14px;padding:11px 14px;margin-bottom:7px;gap:11px;}
 .ritem-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .ritem-ic svg{width:18px;height:18px;}
 .ritem-info{flex:1;}
-.ritem-name{font-size:13px;font-weight:500;color:var(--text);}
+.ritem-nm{font-size:13px;font-weight:600;color:var(--text);}
 .ritem-sub{font-size:11px;color:var(--sub);margin-top:1px;}
-.ritem-amt{font-family:var(--disp);font-size:14px;font-weight:600;flex-shrink:0;}
+.ritem-amt{font-family:var(--disp);font-size:14px;font-weight:700;flex-shrink:0;}
 .ritem-del{background:none;border:none;color:var(--hint);cursor:pointer;font-size:18px;line-height:1;transition:color .15s;}
-.ritem-del:hover{color:var(--red2);}
-.ritem-add{width:100%;background:rgba(8,8,18,0.6);border:.5px dashed var(--bd2);border-radius:14px;padding:12px;text-align:center;font-size:12px;color:var(--sub);cursor:pointer;transition:all .15s;}
-.ritem-add:hover{border-color:var(--red);color:var(--red2);}
+.ritem-del:hover{color:var(--red);}
+.radd{width:100%;background:transparent;border:0.5px dashed var(--bd2);border-radius:14px;padding:12px;text-align:center;font-size:12px;color:var(--sub);cursor:pointer;transition:all .15s;font-weight:500;}
+.radd:hover{border-color:var(--accent);color:var(--accent);}
 
-.lw{padding:0 22px;}
+/* LIST */
+.lw{padding:0 20px;}
 .lhdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-.ltitle{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;}
-.lclr{font-size:11px;color:var(--hint);background:none;border:none;cursor:pointer;font-family:var(--body);transition:color .15s;}
-.lclr:hover{color:var(--red2);}
-.exp{display:flex;align-items:center;background:rgba(8,8,18,0.8);border:.5px solid var(--bd);border-radius:15px;padding:12px 14px;margin-bottom:7px;gap:11px;backdrop-filter:blur(8px);animation:si .2s ease;}
+.ltitle{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;}
+.lclr{font-size:11px;color:var(--hint);background:none;border:none;cursor:pointer;font-family:var(--body);transition:color .15s;font-weight:500;}
+.lclr:hover{color:var(--red);}
+.exp{display:flex;align-items:center;background:var(--s1);border:0.5px solid var(--bd);border-radius:15px;padding:12px 14px;margin-bottom:7px;gap:11px;animation:si .2s ease;touch-action:pan-y;user-select:none;transition:transform .2s,opacity .2s;}
+.exp.swiping{transition:none;}
+.exp.swipe-out{transform:translateX(-100%);opacity:0;}
 @keyframes si{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
 .epic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .epic svg{width:20px;height:20px;}
 .einfo{flex:1;min-width:0;}
-.ecat{font-size:13px;font-weight:500;}
+.ecat{font-size:13px;font-weight:600;color:var(--text);}
 .enote{font-size:11px;color:var(--sub);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .etime{font-size:10px;color:var(--hint);margin-top:1px;}
-.eamt{font-family:var(--disp);font-size:14px;font-weight:600;color:var(--text);flex-shrink:0;}
-.edel{background:none;border:none;color:var(--hint);cursor:pointer;padding:3px;transition:color .15s;flex-shrink:0;font-size:18px;line-height:1;}
-.edel:hover{color:var(--red2);}
-.recur-badge{font-size:9px;color:var(--amber);border:.5px solid rgba(255,176,32,.3);padding:1px 6px;border-radius:10px;margin-left:5px;vertical-align:middle;}
-.empty{text-align:center;padding:38px 0;color:var(--sub);font-size:13px;}
-.empty svg{width:32px;height:32px;margin-bottom:10px;opacity:.25;display:block;margin-left:auto;margin-right:auto;}
+.rb{font-size:9px;color:var(--amber);border:0.5px solid rgba(255,181,71,.25);padding:1px 6px;border-radius:8px;margin-left:5px;}
+.eamt{font-family:var(--disp);font-size:14px;font-weight:700;color:var(--text);flex-shrink:0;}
+.edel{background:none;border:none;color:var(--hint);cursor:pointer;font-size:18px;transition:color .15s;flex-shrink:0;}
+.edel:hover{color:var(--red);}
+.empty{text-align:center;padding:40px 0;color:var(--sub);font-size:13px;}
+.empty svg{width:32px;height:32px;display:block;margin:0 auto 10px;opacity:.2;}
 
 /* STATS */
-.sw{padding:0 22px;}
-.ssect{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;margin:18px 0 10px;}
+.sw{padding:0 20px;}
+.ssect{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;margin:18px 0 10px;font-weight:600;}
 .kgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
-.kpi{background:rgba(8,8,18,0.8);border:.5px solid var(--bd);border-radius:14px;padding:14px;backdrop-filter:blur(8px);}
-.klbl{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px;}
+.kpi{background:var(--s1);border:0.5px solid var(--bd);border-radius:14px;padding:14px;}
+.klbl{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px;font-weight:600;}
 .kval{font-family:var(--disp);font-size:22px;font-weight:700;letter-spacing:-1px;}
+.export-row{display:flex;gap:8px;margin-bottom:4px;}
+.exp-btn{flex:1;background:var(--s1);border:0.5px solid var(--bd2);border-radius:12px;padding:11px;font-family:var(--disp);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+.exp-btn:hover{border-color:var(--accent);color:var(--accent);}
+.exp-btn.g{color:var(--green);}
+.exp-btn.s{color:var(--sub);}
 
 /* CAT LIMITS */
-.cat-limit-card{background:rgba(8,8,18,0.8);border:.5px solid var(--bd);border-radius:15px;padding:14px 16px;backdrop-filter:blur(8px);margin-bottom:8px;}
-.cl-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:.5px solid var(--hint);}
-.cl-row:last-child{border-bottom:none;padding-bottom:0;}
+.cat-limit-card{background:var(--s1);border:0.5px solid var(--bd);border-radius:15px;padding:14px 16px;margin-bottom:8px;}
+.cl-row{display:flex;align-items:center;gap:10px;}
 .cl-ic{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .cl-ic svg{width:16px;height:16px;}
-.cl-name{font-size:12px;color:var(--sub);min-width:68px;}
+.cl-name{font-size:12px;color:var(--sub);min-width:68px;font-weight:500;}
 .cl-bars{flex:1;}
-.cl-bar-row{display:flex;justify-content:space-between;font-size:10px;color:var(--hint);margin-bottom:4px;}
+.cl-bar-row{display:flex;justify-content:space-between;font-size:10px;color:var(--hint);margin-bottom:4px;font-weight:500;}
 .cl-track{height:4px;background:var(--hint);border-radius:2px;overflow:hidden;}
 .cl-fill{height:100%;border-radius:2px;transition:width .4s;}
-.cl-limit-in{width:58px;background:rgba(22,22,38,0.9);border:.5px solid var(--bd2);border-radius:8px;padding:4px 8px;font-family:var(--disp);font-size:12px;color:var(--text);outline:none;text-align:right;}
-.cl-limit-in:focus{border-color:var(--red);}
+.cl-limit-in{width:62px;background:var(--s2);border:0.5px solid var(--bd2);border-radius:8px;padding:5px 9px;font-family:var(--disp);font-size:12px;font-weight:600;color:var(--text);outline:none;text-align:right;-webkit-appearance:none;}
+.cl-limit-in:focus{border-color:var(--accent);}
 
-.hw{padding:0 22px;}
-.hm{background:rgba(8,8,18,0.8);border:.5px solid var(--bd);border-radius:15px;padding:14px 16px;margin-bottom:8px;backdrop-filter:blur(8px);cursor:pointer;transition:border .2s;}
-.hm:hover{border-color:var(--bd2);}
-.hmtop{display:flex;align-items:center;justify-content:space-between;}
-.hmname{font-size:14px;font-weight:500;color:var(--text);}
-.hmamt{font-family:var(--disp);font-size:16px;font-weight:700;color:var(--red2);}
-.hmsub{font-size:11px;color:var(--sub);margin-top:4px;}
+/* HIST */
+.hw{padding:0 20px;}
+.hm{background:var(--s1);border:0.5px solid var(--bd);border-radius:15px;padding:14px 16px;margin-bottom:8px;}
+.hmtop{display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.hmnm{font-size:14px;font-weight:600;color:var(--text);}
+.hmsub{font-size:11px;color:var(--sub);margin-top:3px;}
+.hmamt{font-family:var(--disp);font-size:16px;font-weight:700;color:var(--red);}
 .hmprog{height:2px;background:var(--hint);border-radius:2px;margin-top:10px;overflow:hidden;}
 .hmfill{height:100%;border-radius:2px;}
+.hm-actions{display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+.hm-exp{background:none;border:0.5px solid var(--bd2);border-radius:8px;padding:5px 14px;font-size:11px;color:var(--sub);cursor:pointer;font-family:var(--body);font-weight:500;transition:all .15s;}
+.hm-exp:hover{border-color:var(--accent);color:var(--accent);}
 
-.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(6,6,14,0.95);border-top:.5px solid var(--bd2);backdrop-filter:blur(24px);display:flex;padding:10px 0 24px;z-index:10;}
+/* QUICK VIEW */
+.qview{padding:20px 20px 0;}
+.qview-lbl{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;font-weight:600;}
+.qdisplay{font-family:var(--disp);font-size:64px;font-weight:700;letter-spacing:-4px;color:var(--text);min-height:72px;margin-bottom:4px;}
+.qcat-lbl{font-size:12px;color:var(--sub);margin-bottom:18px;font-weight:500;}
+.qcats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:16px;}
+.qcat{background:var(--s1);border:0.5px solid var(--bd);border-radius:12px;padding:8px 4px 6px;text-align:center;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.qcat.on{background:var(--accent-dim);border-color:rgba(232,255,71,0.35);}
+.qcat svg{width:20px;height:20px;opacity:.4;}
+.qcat.on svg{opacity:1;}
+.qcat-lb{font-size:10px;color:var(--sub);font-weight:500;}
+.qcat.on .qcat-lb{color:var(--accent);}
+.qgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;}
+.qbtn{background:var(--s1);border:0.5px solid var(--bd2);border-radius:14px;padding:18px 8px;font-family:var(--disp);font-size:22px;font-weight:700;color:var(--text);cursor:pointer;transition:all .1s;}
+.qbtn:active{background:var(--accent-dim);border-color:var(--accent);transform:scale(.95);}
+.qadd-btn{width:100%;background:var(--accent);border:none;border-radius:16px;padding:18px;font-family:var(--disp);font-size:16px;font-weight:700;color:#000;cursor:pointer;transition:all .15s;}
+.qadd-btn:active{transform:scale(.98);}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(10,10,10,0.96);border-top:0.5px solid var(--bd2);backdrop-filter:blur(24px);display:flex;padding:10px 0 24px;z-index:10;}
 .ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;padding:6px;}
 .niic{width:24px;height:24px;opacity:.3;transition:opacity .2s;}
-.nilb{font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:1px;transition:color .2s;}
+.nilb{font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:1px;transition:color .2s;font-weight:600;}
 .ni.on .niic{opacity:1;}
-.ni.on .nilb{color:var(--red2);}
+.ni.on .nilb{color:var(--accent);}
 
-.mbg{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:20;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;max-width:430px;left:50%;transform:translateX(-50%);}
+/* MODALS */
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:20;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;max-width:430px;left:50%;transform:translateX(-50%);}
 .mbg.on{opacity:1;pointer-events:all;}
-.modal{background:var(--s2);border:.5px solid var(--bd2);border-top-left-radius:24px;border-top-right-radius:24px;width:100%;padding:20px;max-height:65vh;overflow-y:auto;}
-.mtitle{font-family:var(--disp);font-size:15px;font-weight:600;margin-bottom:14px;color:var(--text);}
-.mopt{padding:11px 14px;border-radius:11px;cursor:pointer;font-size:13px;color:var(--sub);transition:all .15s;display:flex;justify-content:space-between;}
-.mopt:hover{background:var(--s3);color:var(--text);}
-.mopt.on{background:var(--red-dim);color:var(--red2);}
-
-/* RECURRENT ADD MODAL */
+.modal{background:var(--s1);border:0.5px solid var(--bd2);border-top-left-radius:24px;border-top-right-radius:24px;width:100%;padding:20px;max-height:70vh;overflow-y:auto;}
+.mtitle{font-family:var(--disp);font-size:16px;font-weight:700;margin-bottom:14px;color:var(--text);}
+.mopt{padding:12px 14px;border-radius:11px;cursor:pointer;font-size:13px;color:var(--sub);font-weight:500;transition:all .15s;display:flex;justify-content:space-between;}
+.mopt:hover{background:var(--s2);color:var(--text);}
+.mopt.on{background:var(--accent-dim);color:var(--accent);}
 .rm-row{margin-bottom:12px;}
-.rm-lbl{font-size:11px;color:var(--sub);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;}
-.rm-in{width:100%;background:rgba(22,22,38,0.85);border:.5px solid var(--bd2);border-radius:11px;padding:10px 13px;font-family:var(--body);font-size:14px;color:var(--text);outline:none;transition:border .2s;}
-.rm-in:focus{border-color:var(--red);}
+.rm-lbl{font-size:11px;color:var(--sub);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;font-weight:600;}
+.rm-in{width:100%;background:var(--s2);border:0.5px solid var(--bd2);border-radius:11px;padding:10px 13px;font-family:var(--body);font-size:14px;color:var(--text);outline:none;transition:border .2s;}
+.rm-in:focus{border-color:var(--accent);}
 .rm-cats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
-.rm-cat{background:rgba(22,22,38,0.7);border:.5px solid var(--bd);border-radius:10px;padding:8px 4px 6px;text-align:center;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:3px;}
-.rm-cat.on{background:var(--red-dim);border-color:rgba(204,34,34,.4);}
+.rm-cat{background:var(--s2);border:0.5px solid var(--bd);border-radius:10px;padding:8px 4px 6px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s;}
+.rm-cat.on{background:var(--accent-dim);border-color:rgba(232,255,71,0.35);}
 .rm-cat svg{width:18px;height:18px;opacity:.4;}
 .rm-cat.on svg{opacity:1;}
-.rm-cat-lb{font-size:9px;color:var(--sub);}
-.rm-cat.on .rm-cat-lb{color:var(--red2);}
-.rm-btn{width:100%;background:var(--red);border:none;border-radius:12px;padding:12px;font-family:var(--disp);font-size:14px;font-weight:600;color:#fff;cursor:pointer;margin-top:4px;}
+.rm-cat-lb{font-size:9px;color:var(--sub);font-weight:500;}
+.rm-cat.on .rm-cat-lb{color:var(--accent);}
+.rm-btn{width:100%;background:var(--accent);border:none;border-radius:12px;padding:13px;font-family:var(--disp);font-size:14px;font-weight:700;color:#000;cursor:pointer;margin-top:4px;}
 
-.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(10px);background:rgba(12,12,26,0.97);border:.5px solid var(--bd2);border-radius:20px;padding:10px 18px;font-size:13px;color:var(--text);opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;z-index:30;backdrop-filter:blur(16px);}
+/* SUMMARY MODAL */
+#modal-summary .modal{background:var(--s1);}
+
+/* TOAST */
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(10px);background:rgba(17,17,17,0.98);border:0.5px solid var(--bd2);border-radius:20px;padding:10px 18px;font-size:13px;color:var(--text);opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;z-index:30;backdrop-filter:blur(16px);font-weight:500;}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
-
-.exp{touch-action:pan-y;user-select:none;transition:transform .2s,opacity .2s;}
-.exp.swiping{transition:none;}
-.exp.swipe-out{transform:translateX(-100%);opacity:0;}
-
-.qbtn{background:rgba(18,18,32,0.9);border:.5px solid var(--bd2);border-radius:14px;padding:18px 8px;font-family:var(--disp);font-size:22px;font-weight:600;color:var(--text);cursor:pointer;transition:all .1s;backdrop-filter:blur(8px);}
-.qbtn:active{background:var(--red-dim);transform:scale(.95);}
-.qcat{background:rgba(18,18,32,0.8);border:.5px solid var(--bd);border-radius:11px;padding:8px 4px 6px;text-align:center;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:3px;}
-.qcat svg{width:20px;height:20px;opacity:.4;transition:opacity .15s;}
-.qcat.on{background:var(--red-dim);border-color:rgba(204,34,34,.4);}
-.qcat.on svg{opacity:1;}
-.qcat-lb{font-size:10px;color:var(--sub);}
-.qcat.on .qcat-lb{color:var(--red2);}
 .view{display:none;}.view.on{display:block;}
+
+/* SMART BUDGET TIP */
+#smart-budget-tip .abtn{font-family:var(--disp);font-size:12px;font-weight:700;}
 </style>
 </head>
 <body>
@@ -194,78 +232,76 @@ body{font-family:var(--body);color:var(--text);background:var(--bg);min-height:1
 <div class="z">
 
 <div class="hdr">
-  <div class="logo">Gasto<em>//</em>Track</div>
+  <div>
+    <div class="logo">Gasto<em>//</em>Track</div>
+    <div style="font-size:10px;color:var(--sub);font-weight:500;letter-spacing:1px;margin-top:2px">by Manuel Díaz</div>
+  </div>
   <div class="mpill" id="mpill" onclick="openModal('month')">▾ <span id="mtxt">Mayo 2025</span></div>
 </div>
 
 <!-- HOME -->
 <div class="view on" id="view-home">
   <div class="hero">
-    <div class="hlbl">Gastado este mes</div>
-    <div class="hnum" id="hnum">0<span class="dec">,00 €</span></div>
-    <div class="hrow">
-      <div class="chip cg" id="chip-left">↑ 900 € disponibles</div>
-      <div class="chip cs" id="chip-count">0 gastos</div>
-      <div class="chip cs" id="chip-today">Hoy: 0 €</div>
+    <div class="hero-lbl">Gastado este mes</div>
+    <div class="hero-amt" id="hnum">0<span class="dec">,00 €</span></div>
+    <div class="hero-chips">
+      <div class="chip chip-g" id="chip-left">↑ 900 € disponibles</div>
+      <div class="chip chip-n" id="chip-count">0 gastos</div>
+      <div class="chip chip-n" id="chip-today">Hoy: 0 €</div>
     </div>
   </div>
 
-  <div class="pw">
-    <div class="pr"><span id="plbl">0% del presupuesto</span><span id="pbudget">límite: 900 €</span></div>
-    <div class="pt"><div class="pf" id="pfill" style="width:0%"></div></div>
+  <div class="prog">
+    <div class="prog-row"><span id="plbl">0% del presupuesto</span><span id="pbudget">límite: 900 €</span></div>
+    <div class="prog-track"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
   </div>
 
-  <div class="qw">
-    <div class="qcard">
-      <div class="qlbl">Nuevo gasto</div>
-      <div class="qtop">
-        <div class="qsign">€</div>
-        <input type="number" class="qin" id="ain" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+  <div class="qa">
+    <div class="qa-card">
+      <div class="qa-top">
+        <div class="qa-sign">€</div>
+        <input type="number" class="qa-in" id="ain" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
       </div>
       <div class="cats" id="cats"></div>
-      <div class="recur-toggle" onclick="toggleRecur()">
-        <div class="toggle-track" id="rtoggle"><div class="toggle-thumb"></div></div>
-        <div class="toggle-lbl">Gasto recurrente (se repetirá cada mes)</div>
+      <div class="rtog" onclick="toggleRecur()">
+        <div class="tog-track" id="rtoggle"><div class="tog-thumb"></div></div>
+        <div class="rtog-lbl">Gasto recurrente mensual</div>
       </div>
       <input type="text" class="nin" id="nin" placeholder="Nota (opcional)">
       <button class="abtn" onclick="addExp()">+ Añadir gasto</button>
     </div>
   </div>
 
-  <!-- RECURRENTES -->
-  <div class="recur-section">
-    <div class="rsect">
-      <span>Recurrentes</span>
-      <button class="rsect-add" onclick="openModal('recur')">+ Añadir fijo</button>
-    </div>
+  <div class="rs">
+    <div class="rsect"><span>Recurrentes</span><button class="rsadd" onclick="openModal('recur')">+ Añadir</button></div>
     <div id="recur-list"></div>
   </div>
 
   <div class="lw">
-    <div class="lhdr">
-      <div class="ltitle">Últimos gastos</div>
-      <button class="lclr" onclick="clearMonth()">Borrar mes</button>
-    </div>
+    <div class="lhdr"><div class="ltitle">Últimos gastos</div><button class="lclr" onclick="clearMonth()">Borrar mes</button></div>
     <div id="elist"></div>
   </div>
 </div>
 
-<!-- STATS / LÍMITES -->
+<!-- STATS -->
 <div class="view" id="view-stats">
   <div class="sw">
     <div class="ssect">Resumen del mes</div>
     <div class="kgrid" id="kgrid"></div>
-
+    <div class="export-row">
+      <button class="exp-btn g" onclick="exportCSV()">↓ Exportar mes</button>
+      <button class="exp-btn s" onclick="exportAllCSV()">↓ Todo el año</button>
+    </div>
     <div id="smart-budget-tip" style="margin-bottom:4px"></div>
-    <div style="display:flex;gap:8px;margin-bottom:4px">
-      <button onclick="exportCSV()" style="flex:1;background:rgba(8,8,18,0.8);border:.5px solid var(--bd2);border-radius:12px;padding:11px;font-family:var(--disp);font-size:12px;font-weight:600;color:var(--green);cursor:pointer;letter-spacing:.3px;transition:all .15s">↓ Exportar CSV</button>
-      <button onclick="exportAllCSV()" style="flex:1;background:rgba(8,8,18,0.8);border:.5px solid var(--bd2);border-radius:12px;padding:11px;font-family:var(--disp);font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;letter-spacing:.3px;transition:all .15s">↓ Todo el año</button>
-    </div>    <div class="ssect">Gasto semanal</div>
-    <div style="background:rgba(8,8,18,0.8);border:.5px solid var(--bd);border-radius:15px;padding:16px;margin-bottom:4px;backdrop-filter:blur(8px)">
+    <div class="ssect">Gasto semanal</div>
+    <div style="background:var(--s1);border:0.5px solid var(--bd);border-radius:15px;padding:16px;margin-bottom:4px;">
       <div id="weekly-chart" style="display:flex;align-items:flex-end;gap:8px;height:80px"></div>
       <div id="weekly-labels" style="display:flex;gap:8px;margin-top:8px"></div>
     </div>
-    <div class="ssect">Límites por categoría <span style="font-size:10px;color:var(--hint);font-weight:400;text-transform:none;letter-spacing:0"> · edita el límite</span></div>
+    <div class="ssect" style="display:flex;align-items:center;justify-content:space-between">
+      <span>Límites por categoría <span style="font-size:10px;color:var(--hint);font-weight:400;text-transform:none;letter-spacing:0"> · toca para editar</span></span>
+      <button onclick="openModal('addcat')" style="font-size:11px;color:var(--accent);background:none;border:none;cursor:pointer;font-family:var(--body);font-weight:600">+ Categoría</button>
+    </div>
     <div id="catlimits"></div>
   </div>
 </div>
@@ -278,80 +314,91 @@ body{font-family:var(--body);color:var(--text);background:var(--bg);min-height:1
   </div>
 </div>
 
-</div><!-- /z -->
-
-<!-- QUICK ADD VIEW -->
+<!-- QUICK ADD -->
 <div class="view" id="view-quick">
-  <div style="padding:20px 22px 0">
-    <div style="font-family:var(--disp);font-size:13px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px">Añadir rápido</div>
-    <div style="font-family:var(--disp);font-size:64px;font-weight:700;letter-spacing:-4px;color:var(--text);min-height:72px;margin-bottom:4px" id="q-display">0</div>
-    <div style="font-size:12px;color:var(--sub);margin-bottom:20px">€ · <span id="q-cat-name">Comida</span></div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:16px" id="q-cats"></div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px">
+  <div class="qview">
+    <div class="qview-lbl">Añadir rápido</div>
+    <div class="qdisplay" id="q-display">0</div>
+    <div class="qcat-lbl">€ · <span id="q-cat-name">Comida</span></div>
+    <div class="qcats" id="q-cats"></div>
+    <div class="qgrid">
       <button class="qbtn" onclick="qkey('1')">1</button><button class="qbtn" onclick="qkey('2')">2</button><button class="qbtn" onclick="qkey('3')">3</button>
       <button class="qbtn" onclick="qkey('4')">4</button><button class="qbtn" onclick="qkey('5')">5</button><button class="qbtn" onclick="qkey('6')">6</button>
       <button class="qbtn" onclick="qkey('7')">7</button><button class="qbtn" onclick="qkey('8')">8</button><button class="qbtn" onclick="qkey('9')">9</button>
       <button class="qbtn" onclick="qkey('.')">.</button><button class="qbtn" onclick="qkey('0')">0</button>
       <button class="qbtn" style="color:var(--sub)" onclick="qkey('del')">⌫</button>
     </div>
-    <button onclick="qSubmit()" style="width:100%;background:var(--red);border:none;border-radius:16px;padding:18px;font-family:var(--disp);font-size:16px;font-weight:700;color:#fff;cursor:pointer;letter-spacing:.3px;transition:all .15s" id="q-add-btn">Añadir · 0 €</button>
+    <button onclick="qSubmit()" class="qadd-btn" id="q-add-btn">Añadir · 0 €</button>
   </div>
 </div>
 
+</div>
+
+<!-- NAV -->
 <div class="bnav">
   <div class="ni on" id="nav-home" onclick="sv('home')">
-    <svg class="niic" viewBox="0 0 24 24" fill="none" stroke="var(--red2)" stroke-width="1.5"><rect x="3" y="10" width="18" height="11" rx="2"/><path d="M3 10l9-7 9 7"/></svg>
+    <svg class="niic" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><rect x="3" y="10" width="18" height="11" rx="2"/><path d="M3 10l9-7 9 7"/></svg>
     <div class="nilb">Gastos</div>
   </div>
   <div class="ni" id="nav-stats" onclick="sv('stats')">
-    <svg class="niic" viewBox="0 0 24 24" fill="none" stroke="var(--red2)" stroke-width="1.5"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
-    <div class="nilb">Límites</div>
+    <svg class="niic" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
+    <div class="nilb">Stats</div>
   </div>
   <div class="ni" id="nav-hist" onclick="sv('hist')">
-    <svg class="niic" viewBox="0 0 24 24" fill="none" stroke="var(--red2)" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h2m2 0h2"/></svg>
+    <svg class="niic" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h2m2 0h2"/></svg>
     <div class="nilb">Historial</div>
   </div>
-</div>
-
-<!-- MONTH MODAL -->
-<div class="mbg" id="modal-month" onclick="closeModal('month',event)">
-  <div class="modal">
-    <div class="mtitle">Seleccionar mes</div>
-    <div id="mlist"></div>
+  <div class="ni" id="nav-quick" onclick="sv('quick')">
+    <svg class="niic" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg>
+    <div class="nilb">Rápido</div>
   </div>
 </div>
 
-<!-- RECURRENT ADD MODAL -->
+<!-- MODALS -->
+<div class="mbg" id="modal-month" onclick="closeModal('month',event)">
+  <div class="modal"><div class="mtitle">Seleccionar mes</div><div id="mlist"></div></div>
+</div>
 <div class="mbg" id="modal-recur" onclick="closeModal('recur',event)">
   <div class="modal">
-    <div class="mtitle">Añadir gasto fijo</div>
-    <div class="rm-row">
-      <div class="rm-lbl">Nombre</div>
-      <input type="text" class="rm-in" id="rname" placeholder="ej: Spotify">
-    </div>
-    <div class="rm-row">
-      <div class="rm-lbl">Importe mensual</div>
-      <input type="number" class="rm-in" id="ramt" placeholder="9.99" inputmode="decimal">
-    </div>
-    <div class="rm-row">
-      <div class="rm-lbl">Categoría</div>
-      <div class="rm-cats" id="rm-cats"></div>
-    </div>
+    <div class="mtitle">Gasto fijo mensual</div>
+    <div class="rm-row"><div class="rm-lbl">Nombre</div><input type="text" class="rm-in" id="rname" placeholder="ej: Spotify"></div>
+    <div class="rm-row"><div class="rm-lbl">Importe</div><input type="number" class="rm-in" id="ramt" placeholder="9.99" inputmode="decimal"></div>
+    <div class="rm-row"><div class="rm-lbl">Categoría</div><div class="rm-cats" id="rm-cats"></div></div>
     <button class="rm-btn" onclick="addRecur()">Añadir gasto fijo</button>
   </div>
 </div>
-
-<!-- MONTH SUMMARY MODAL -->
 <div class="mbg" id="modal-summary" onclick="closeModal('summary',event)">
-  <div class="modal" style="padding:24px">
-    <div id="summary-content"></div>
-    <button onclick="closeModal('summary')" style="width:100%;background:var(--red);border:none;border-radius:13px;padding:13px;font-family:var(--disp);font-size:14px;font-weight:600;color:#fff;cursor:pointer;margin-top:16px">Continuar →</button>
+  <div class="modal"><div id="summary-content"></div><button onclick="closeModal('summary')" style="width:100%;background:var(--accent);border:none;border-radius:13px;padding:13px;font-family:var(--disp);font-size:14px;font-weight:700;color:#000;cursor:pointer;margin-top:16px">Continuar →</button></div>
+</div>
+
+<!-- ADD CATEGORY MODAL -->
+<div class="mbg" id="modal-addcat" onclick="closeModal('addcat',event)">
+  <div class="modal">
+    <div class="mtitle">Nueva categoría</div>
+    <div class="rm-row">
+      <div class="rm-lbl">Nombre</div>
+      <input type="text" class="rm-in" id="newcat-name" placeholder="ej: Gimnasio, Mascota...">
+    </div>
+    <div class="rm-row">
+      <div class="rm-lbl">Color</div>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:4px" id="color-picker"></div>
+    </div>
+    <div class="rm-row">
+      <div class="rm-lbl">Límite mensual (€)</div>
+      <input type="number" class="rm-in" id="newcat-limit" placeholder="100" inputmode="decimal">
+    </div>
+    <button class="rm-btn" onclick="addCustomCat()">Añadir categoría</button>
+    <div style="margin-top:12px">
+      <div class="rm-lbl" style="margin-bottom:8px">Categorías personalizadas</div>
+      <div id="custom-cats-list"></div>
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
+
 const SVGS={
   comida:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 2v4M8 6c0 0-2 2-2 5s2 5 2 5v6M16 6c0 0 2 2 2 5s-2 5-2 5v6M10 11h4"/></svg>`,
   transp:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="7" width="18" height="11" rx="2"/><path d="M3 12h18M7 18v2M17 18v2M6 7V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2"/><circle cx="8" cy="15" r="1" fill="currentColor"/><circle cx="16" cy="15" r="1" fill="currentColor"/></svg>`,
@@ -392,6 +439,27 @@ let curM = _savedMonth ? _savedMonth.m : now.getMonth();
 function saveAll(){localStorage.setItem('gt_e',JSON.stringify(all));}
 function saveRecur(){localStorage.setItem('gt_r',JSON.stringify(recuring));}
 function saveLimits(){localStorage.setItem('gt_cl',JSON.stringify(catLimits));}
+function updateLimit(el){
+  const catId=el.dataset.cat;
+  const val=+el.value;
+  if(!catId||isNaN(val))return;
+  catLimits[catId]=val;
+  saveLimits();
+  // Update bar and text in real time without full re-render
+  const me=getME(curY,curM);
+  const spent=me.filter(e=>e.cat===catId).reduce((a,e)=>a+e.amount,0);
+  const pct=Math.min(100,val>0?spent/val*100:0);
+  const barColor=pct>90?'#FF3333':pct>70?'#FFB020':'#58A6FF';
+  const row=el.closest('.cl-row');
+  if(row){
+    const bar=row.querySelector('.cl-fill');
+    const label=row.querySelector('.cl-bar-row span:last-child');
+    const topLabel=row.querySelector('.cl-bar-row span:first-child');
+    if(bar)bar.style.width=pct+'%';
+    if(bar)bar.style.background=barColor;
+    if(label)label.textContent='/ '+val+' €';
+  }
+}
 function getBudget(){return budgets[curY+'_'+curM]||BUDGET_DEFAULT;}
 function getME(y,m){return all.filter(e=>{
   if(e.y!==undefined&&e.m!==undefined)return e.y===y&&e.m===m;
@@ -534,7 +602,7 @@ function update(){
   document.getElementById('hnum').innerHTML=p[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.')+`<span class="dec">,${p[1]} €</span>`;
   const cl=document.getElementById('chip-left');
   cl.textContent=(left>=0?'↑ '+left.toFixed(0)+' € disponibles':'↓ '+Math.abs(left).toFixed(0)+' € excedido');
-  cl.className='chip '+(left>=0?'cg':'cr');
+  cl.className='chip '+(left>=0?'chip-g':'chip-r');
   document.getElementById('chip-count').textContent=me.length+' gasto'+(me.length===1?'':'s');
   document.getElementById('plbl').textContent=pct.toFixed(0)+'% del presupuesto';
   document.getElementById('pbudget').textContent='límite: '+budget+' €';
@@ -589,7 +657,7 @@ function renderList(me){
     return`<div class="exp">
       <div class="epic" style="background:${cat.bg}"><div style="color:${cat.col};width:20px;height:20px">${SVGS[cat.id]}</div></div>
       <div class="einfo">
-        <div class="ecat" style="color:${cat.col}">${cat.lb}${e.isRecur?'<span class="recur-badge">fijo</span>':''}</div>
+        <div class="ecat" style="color:${cat.col}">${cat.lb}${e.isRecur?'<span class="rb">fijo</span>':''}</div>
         <div class="enote">${e.note||ts}</div>
         ${e.note?`<div class="etime">${ts}</div>`:''}
       </div>
@@ -650,7 +718,8 @@ function updateStats(){
           <div class="cl-track"><div class="cl-fill" style="width:${pct}%;background:${barColor}"></div></div>
         </div>
         <input type="number" class="cl-limit-in" value="${lim}" min="0" step="10"
-          onchange="catLimits['${cat.id}']=+this.value;saveLimits();updateStats()">
+          data-cat="${cat.id}"
+          oninput="updateLimit(this)">
       </div>
     </div>`;
   }).join('');
@@ -668,15 +737,15 @@ function updateHist(){
     const exps=getME(y,m),total=exps.reduce((a,e)=>a+e.amount,0);
     const budget=budgets[key]||BUDGET_DEFAULT,pct=Math.min(100,budget>0?total/budget*100:0);
     const active=y===curY&&m===curM;
-    return`<div class="hm" style="${active?'border-color:var(--red);':''}">
-      <div class="hmtop" onclick="goMonth(${y},${m})" style="cursor:pointer">
-        <div><div class="hmname">${MONTHS[m]} ${y}${active?' · actual':''}</div><div class="hmsub">${exps.length} gastos · ${pct.toFixed(0)}% del presupuesto</div></div>
+    return`<div class="hm" style="${active?'border-color:rgba(232,255,71,0.4);':''}">
+      <div class="hmtop" onclick="goMonth(${y},${m})">
+        <div><div class="hmnm">${MONTHS[m]} ${y}${active?' · actual':''}</div><div class="hmsub">${exps.length} gastos · ${pct.toFixed(0)}% del límite</div></div>
         <div class="hmamt">${total.toFixed(0)} €</div>
       </div>
-      <div class="hmprog"><div class="hmfill" style="width:${pct}%;background:${pct>90?'#FF3333':pct>70?'#FFB020':'var(--red)'}"></div></div>
-      <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:11px;color:var(--sub)">${exps.length} gastos registrados</span>
-        <button onclick="event.stopPropagation();exportMonthCSV(${y},${m})" style="background:none;border:.5px solid var(--bd2);border-radius:8px;padding:5px 14px;font-size:11px;color:var(--sub);cursor:pointer;font-family:var(--body);transition:color .15s" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--sub)'">↓ Excel</button>
+      <div class="hmprog"><div class="hmfill" style="width:${pct}%;background:${pct>90?'#FF4D4D':pct>70?'#FFB547':'#4DFF91'}"></div></div>
+      <div class="hm-actions">
+        <span style="font-size:11px;color:var(--hint)">${exps.length} gastos</span>
+        <button class="hm-exp" onclick="event.stopPropagation();exportMonthCSV(${y},${m})">↓ Exportar Excel</button>
       </div>
     </div>`;
   }).join('');
@@ -921,6 +990,138 @@ function csvDownload(expenses, filename){
 document.getElementById('ain').addEventListener('keydown',e=>{if(e.key==='Enter')addExp();});
 
 update();
+
+
+/* ── CUSTOM CATEGORIES ── */
+const CAT_COLORS = ['#E8FF47','#FF4D4D','#4DFF91','#FFB547','#4D9FFF','#FF4DCC','#FF8C47','#A347FF','#47FFE8','#FF4D7A'];
+let selectedCatColor = CAT_COLORS[0];
+
+function loadCustomCats(){
+  try{ return JSON.parse(localStorage.getItem('gt_custom_cats')||'[]'); }catch{ return []; }
+}
+function saveCustomCats(arr){ localStorage.setItem('gt_custom_cats', JSON.stringify(arr)); }
+
+function mergeCustomCats(){
+  const custom = loadCustomCats();
+  custom.forEach(cc => {
+    if(!CATS.find(c=>c.id===cc.id)){
+      CATS.push(cc);
+      catLimits[cc.id] = cc.lim || 100;
+    }
+  });
+}
+
+function buildColorPicker(){
+  const el = document.getElementById('color-picker');
+  if(!el) return;
+  el.innerHTML = CAT_COLORS.map(col => `
+    <div onclick="selectColor('${col}')" id="cp-${col.replace('#','')}"
+      style="width:100%;aspect-ratio:1;border-radius:50%;background:${col};cursor:pointer;
+      border:2px solid ${col===selectedCatColor?'#fff':'transparent'};transition:border .15s">
+    </div>`).join('');
+}
+
+function selectColor(col){
+  selectedCatColor = col;
+  buildColorPicker();
+}
+
+function renderCustomCatsList(){
+  const el = document.getElementById('custom-cats-list');
+  if(!el) return;
+  const custom = loadCustomCats();
+  if(!custom.length){
+    el.innerHTML = '<div style="font-size:12px;color:var(--hint);text-align:center;padding:8px 0">Sin categorías personalizadas</div>';
+    return;
+  }
+  el.innerHTML = custom.map(cc => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--bd)">
+      <div style="width:28px;height:28px;border-radius:8px;background:${cc.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <div style="width:10px;height:10px;border-radius:50%;background:${cc.col}"></div>
+      </div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${cc.lb}</div>
+        <div style="font-size:11px;color:var(--sub)">Límite: ${cc.lim||100} €</div>
+      </div>
+      <button onclick="deleteCustomCat('${cc.id}')"
+        style="background:none;border:none;color:var(--hint);cursor:pointer;font-size:16px;transition:color .15s"
+        onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--hint)'">×</button>
+    </div>`).join('');
+}
+
+function addCustomCat(){
+  const name = document.getElementById('newcat-name').value.trim();
+  const lim  = parseFloat(document.getElementById('newcat-limit').value)||100;
+  if(!name){ toast('Escribe un nombre'); return; }
+
+  const id = 'custom_'+Date.now();
+  const col = selectedCatColor;
+  const bg  = col+'22';  // 13% opacity
+
+  // Build SVG for custom cat — simple circle with initial
+  const initSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><text x="12" y="16" text-anchor="middle" font-size="10" fill="currentColor" stroke="none" font-family="sans-serif">${name[0].toUpperCase()}</text></svg>`;
+
+  const newCat = { id, lb: name, col, bg, lim };
+  const custom = loadCustomCats();
+  custom.push(newCat);
+  saveCustomCats(custom);
+
+  // Add SVG to SVGS object
+  SVGS[id] = initSVG;
+
+  // Add to CATS array
+  CATS.push(newCat);
+  catLimits[id] = lim;
+  saveLimits();
+
+  // Rebuild UI
+  buildCats('cats', selCat, id2=>{ selCat=id2; });
+  document.getElementById('newcat-name').value = '';
+  document.getElementById('newcat-limit').value = '';
+  renderCustomCatsList();
+  updateStats();
+  toast('Categoría "'+name+'" añadida');
+}
+
+function deleteCustomCat(id){
+  const custom = loadCustomCats().filter(c=>c.id!==id);
+  saveCustomCats(custom);
+  const idx = CATS.findIndex(c=>c.id===id);
+  if(idx>-1) CATS.splice(idx,1);
+  delete catLimits[id];
+  saveLimits();
+  buildCats('cats', selCat, id2=>{ selCat=id2; });
+  renderCustomCatsList();
+  updateStats();
+  toast('Categoría eliminada');
+}
+
+/* Patch openModal to handle addcat */
+const _origOpenModal = openModal;
+function openModal(id){
+  if(id==='addcat'){
+    buildColorPicker();
+    renderCustomCatsList();
+    document.getElementById('modal-addcat').classList.add('on');
+    return;
+  }
+  _origOpenModal(id);
+}
+
+/* Patch closeModal to handle addcat */
+const _origCloseModal = closeModal;
+function closeModal(id,e){
+  if(id==='addcat'){
+    if(!e||e.target===document.getElementById('modal-addcat'))
+      document.getElementById('modal-addcat').classList.remove('on');
+    return;
+  }
+  _origCloseModal(id,e);
+}
+
+/* Load custom cats on init */
+mergeCustomCats();
+
 </script>
 </body>
 </html>
