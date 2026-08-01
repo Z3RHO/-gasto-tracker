@@ -258,25 +258,9 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   <div class="prog">
     <div class="prog-row">
       <span id="plbl">0% del presupuesto</span>
-      <span id="pbudget" onclick="editBudget()" style="cursor:pointer;border-bottom:0.5px dashed var(--hint);padding-bottom:1px;transition:color .15s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color=''">límite: 900 €  ✎</span>
+      <span id="pbudget" onclick="editBudget()" style="cursor:pointer;border-bottom:0.5px dashed var(--hint);padding-bottom:1px" title="Toca para editar">límite: 900 € ✎</span>
     </div>
     <div class="prog-track"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
-  </div>
-
-  <div class="qa">
-    <div class="qa-card">
-      <div class="qa-top">
-        <div class="qa-sign">€</div>
-        <input type="number" class="qa-in" id="ain" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
-      </div>
-      <div class="cats" id="cats"></div>
-      <div class="rtog" onclick="toggleRecur()">
-        <div class="tog-track" id="rtoggle"><div class="tog-thumb"></div></div>
-        <div class="rtog-lbl">Gasto recurrente mensual</div>
-      </div>
-      <input type="text" class="nin" id="nin" placeholder="Nota (opcional)">
-      <button class="abtn" onclick="addExp()">+ Añadir gasto</button>
-    </div>
   </div>
 
   <div class="rs">
@@ -285,10 +269,15 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
   </div>
 
   <div class="lw">
-    <div class="lhdr"><div class="ltitle">Últimos gastos</div><button class="lclr" onclick="clearMonth()">Borrar mes</button></div>
+    <div class="lhdr">
+      <div class="ltitle">Gastos del mes</div>
+      <button class="lclr" onclick="clearMonth()">Borrar mes</button>
+    </div>
     <div id="elist"></div>
   </div>
 </div>
+
+<!-- STATS -->
 
 <!-- STATS -->
 <div class="view" id="view-stats">
@@ -335,6 +324,9 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
       <button class="qbtn" onclick="qkey('.')">.</button><button class="qbtn" onclick="qkey('0')">0</button>
       <button class="qbtn" style="color:var(--sub)" onclick="qkey('del')">⌫</button>
     </div>
+    <input type="text" id="q-note" placeholder="Nota (opcional)"
+      style="width:100%;background:var(--s1);border:0.5px solid var(--bd2);border-radius:13px;padding:13px 16px;font-family:var(--body);font-size:14px;color:var(--text);outline:none;margin-bottom:10px;-webkit-appearance:none;transition:border .2s"
+      onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--bd2)'">
     <button onclick="qSubmit()" class="qadd-btn" id="q-add-btn">Añadir · 0 €</button>
   </div>
 </div>
@@ -1002,7 +994,8 @@ function qSubmit(){
   const v=parseFloat(qVal)||0;
   if(v<=0){if(navigator.vibrate)navigator.vibrate([30,20,30]);return;}
   if(navigator.vibrate)navigator.vibrate(40);
-  all.push({ts:Date.now(),amount:v,cat:qCat,note:'',y:curY,m:curM});
+  const note=(document.getElementById('q-note')||{}).value||'';
+  all.push({ts:Date.now(),amount:v,cat:qCat,note:note.trim(),y:curY,m:curM});
   saveAll();update();
   const cat=CATS.find(c=>c.id===qCat);
   toast(v.toFixed(2)+' € · '+cat.lb);
