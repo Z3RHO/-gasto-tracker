@@ -285,6 +285,36 @@ body{font-family:var(--body);color:var(--text);background:var(--bg);min-height:1
   </div>
 </div>
 
+<!-- EDIT MODAL -->
+<div class="mbg" id="modal-edit" onclick="if(event.target===this)closeModal('edit')">
+  <div class="modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-family:var(--disp);font-size:16px;font-weight:700;color:var(--text)">Editar gasto</div>
+      <button onclick="closeModal('edit')" style="background:none;border:none;font-size:22px;color:var(--sub);cursor:pointer;line-height:1">×</button>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:6px">Importe</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <input type="number" id="edit-amt" inputmode="decimal" step="0.01"
+          style="flex:1;background:rgba(8,8,18,0.9);border:.5px solid rgba(255,255,255,0.2);border-radius:11px;padding:12px 14px;font-family:var(--disp);font-size:22px;font-weight:700;color:var(--text);outline:none;text-align:right;-webkit-appearance:none">
+        <span style="font-size:15px;color:var(--sub);font-weight:600">€</span>
+      </div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:6px">Nota</div>
+      <input type="text" id="edit-note"
+        style="width:100%;background:rgba(8,8,18,0.9);border:.5px solid rgba(255,255,255,0.15);border-radius:11px;padding:11px 13px;font-family:sans-serif;font-size:14px;color:var(--text);outline:none">
+    </div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:8px">Categoría</div>
+      <div id="edit-cats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px"></div>
+    </div>
+    <button onclick="saveEdit()" style="width:100%;background:var(--red);border:none;border-radius:13px;padding:14px;font-family:var(--disp);font-size:15px;font-weight:700;color:#fff;cursor:pointer">
+      Guardar cambios
+    </button>
+  </div>
+</div>
+
 <div class="bnav">
   <div class="ni on" id="nav-home" onclick="sv('home')">
     <svg class="niic" viewBox="0 0 24 24" fill="none" stroke="var(--red2)" stroke-width="1.5"><rect x="3" y="10" width="18" height="11" rx="2"/><path d="M3 10l9-7 9 7"/></svg>
@@ -612,13 +642,51 @@ function renderList(me){
         <div class="enote">${e.note||ts}</div>
         ${e.note?`<div class="etime">${ts}</div>`:''}
       </div>
-      <div class="eamt">${e.amount.toFixed(2)} €</div>
+      <div class="eamt" onclick="editExp(${e.ts})" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px">${e.amount.toFixed(2)} €</div>
       <button class="edel" onclick="delExp(${e.ts})">×</button>
     </div>`;
   }).join('');
 }
 
 function delExp(ts){all=all.filter(e=>e.ts!==ts);saveAll();update();}
+
+let _editTs=null;
+function editExp(ts){
+  const exp=all.find(e=>e.ts===ts);
+  if(!exp)return;
+  _editTs=ts;
+  document.getElementById('edit-amt').value=exp.amount.toFixed(2);
+  document.getElementById('edit-note').value=exp.note||'';
+  // Build cat grid
+  const el=document.getElementById('edit-cats');
+  el.innerHTML='';
+  CATS.forEach(cat=>{
+    const d=document.createElement('div');
+    const sel=cat.id===exp.cat;
+    d.style.cssText=`background:${sel?cat.bg:'rgba(8,8,18,0.6)'};border:.5px solid ${sel?cat.col:'rgba(255,255,255,0.08)'};border-radius:10px;padding:8px 4px 6px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s`;
+    d.innerHTML=`<div style="color:${cat.col};width:18px;height:18px">${SVGS[cat.id]}</div><div style="font-size:9px;color:${sel?cat.col:'rgba(255,255,255,0.4)'};font-weight:500">${cat.lb}</div>`;
+    d.onclick=()=>{
+      el.querySelectorAll('div[style]').forEach(x=>{x.style.background='rgba(8,8,18,0.6)';x.style.borderColor='rgba(255,255,255,0.08)';});
+      d.style.background=cat.bg;d.style.borderColor=cat.col;
+      const ex=all.find(e=>e.ts===_editTs);if(ex)ex._cat=cat.id;
+    };
+    el.appendChild(d);
+  });
+  openModal('edit');
+}
+
+function saveEdit(){
+  const exp=all.find(e=>e.ts===_editTs);
+  if(!exp){closeModal('edit');return;}
+  const amt=parseFloat(document.getElementById('edit-amt').value);
+  if(isNaN(amt)||amt<=0){toast('Importe no válido');return;}
+  exp.amount=amt;
+  exp.note=document.getElementById('edit-note').value.trim();
+  if(exp._cat){exp.cat=exp._cat;delete exp._cat;}
+  saveAll();update();
+  closeModal('edit');
+  toast('Gasto actualizado ✓');
+}
 function clearMonth(){
   if(!confirm('¿Borrar todos los gastos de este mes?'))return;
   all=all.filter(e=>!(e.y===curY&&e.m===curM));saveAll();update();
