@@ -395,7 +395,11 @@ const BUDGET_DEFAULT=900;
 
 let all     =JSON.parse(localStorage.getItem('gt_e')||'[]');
 let recuring=JSON.parse(localStorage.getItem('gt_r')||'[]');
-let catLimits=JSON.parse(localStorage.getItem('gt_cl')||JSON.stringify(Object.fromEntries(CATS.map(c=>[c.id,c.lim]))));
+let catLimits=(function(){
+  const saved=JSON.parse(localStorage.getItem('gt_cl')||'{}');
+  CATS.forEach(c=>{if(saved[c.id]===undefined&&c.lim)saved[c.id]=c.lim;});
+  return saved;
+})();
 let budgets =JSON.parse(localStorage.getItem('gt_b')||'{}');
 let selCat  ='comida';
 let selRCat ='suscri';
@@ -526,9 +530,12 @@ function autoAddRecurrents(){
 }
 
 function addExp(){ if(navigator.vibrate)navigator.vibrate(40);
-  const v=parseFloat(document.getElementById('ain').value);
+  const ainEl=document.getElementById('ain');
+  if(!ainEl)return; // form removed from home view
+  const v=parseFloat(ainEl.value);
   if(!v||v<=0){toast('Introduce un importe válido');return;}
-  const note=document.getElementById('nin').value.trim();
+  const ninEl=document.getElementById('nin');
+  const note=ninEl?ninEl.value.trim():'';
   if(isRecur){
     const name=note||CATS.find(c=>c.id===selCat).lb;
     const rid=Date.now();
@@ -539,7 +546,8 @@ function addExp(){ if(navigator.vibrate)navigator.vibrate(40);
     all.push({ts:Date.now(),amount:v,cat:selCat,note,y:curY,m:curM});
   }
   saveAll();update();
-  document.getElementById('ain').value='';document.getElementById('nin').value='';
+  const _ain=document.getElementById('ain');if(_ain)_ain.value='';
+  const _nin=document.getElementById('nin');if(_nin)_nin.value='';
   if(isRecur){toggleRecur();}
   const cat=CATS.find(c=>c.id===selCat);
   toast(v.toFixed(2)+' € · '+cat.lb+(isRecur?' (recurrente)':''));
@@ -1006,7 +1014,114 @@ function csvDownload(expenses, filename){
   },{passive:true});
 })();
 
-document.getElementById('ain').addEventListener('keydown',e=>{if(e.key==='Enter')addExp();});
+/* ── CUSTOM CATEGORIES ── */
+const CAT_COLORS=['#E8FF47','#FF4D4D','#4DFF91','#FFB547','#4D9FFF','#FF4DCC','#FF8C47','#A347FF','#47FFE8','#FF4D7A'];
+let selectedCatColor=CAT_COLORS[0];
+
+function loadCustomCats(){try{return JSON.parse(localStorage.getItem('gt_custom_cats')||'[]');}catch{return [];}}
+function saveCustomCats(a){localStorage.setItem('gt_custom_cats',JSON.stringify(a));}
+
+function mergeCustomCats(){
+  const custom=loadCustomCats();
+  custom.forEach(cc=>{
+    if(!CATS.find(c=>c.id===cc.id)) CATS.push(cc);
+    // Always rebuild SVG in case it was lost
+    SVGS[cc.id]=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><text x="12" y="16" text-anchor="middle" font-size="10" fill="currentColor" stroke="none" font-family="sans-serif">${(cc.lb||'?')[0].toUpperCase()}</text></svg>`;
+    if(cc.lim) catLimits[cc.id]=cc.lim;
+  });
+}
+
+function buildColorPicker(){
+  const el=document.getElementById('color-picker');
+  if(!el)return;
+  el.innerHTML=CAT_COLORS.map(col=>`
+    <div onclick="selectColor('${col}')"
+      style="width:36px;height:36px;border-radius:50%;background:${col};cursor:pointer;flex-shrink:0;
+      border:2.5px solid ${col===selectedCatColor?'#fff':'transparent'};
+      transform:${col===selectedCatColor?'scale(1.15)':'scale(1)'};transition:all .15s">
+    </div>`).join('');
+}
+
+function selectColor(col){selectedCatColor=col;buildColorPicker();}
+
+function renderCustomCatsList(){
+  const el=document.getElementById('custom-cats-list');
+  if(!el)return;
+  const custom=loadCustomCats();
+  if(!custom.length){
+    el.innerHTML='<div style="font-size:12px;color:rgba(255,255,255,0.2);text-align:center;padding:8px 0">Sin categorías personalizadas</div>';
+    return;
+  }
+  el.innerHTML=custom.map(cc=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(8,8,18,0.6);border-radius:12px;margin-bottom:8px;border:.5px solid rgba(255,255,255,0.08)">
+      <div style="width:36px;height:36px;border-radius:10px;background:${cc.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <div style="width:12px;height:12px;border-radius:50%;background:${cc.col}"></div>
+      </div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:#fff">${cc.lb}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px">${cc.lim?cc.lim+' €/mes':'Sin límite'}</div>
+      </div>
+      <button onclick="renameCat('${cc.id}')" style="width:28px;height:28px;background:rgba(232,255,71,0.08);border:.5px solid rgba(232,255,71,0.2);border-radius:50%;color:#E8FF47;cursor:pointer;font-size:13px;margin-right:4px">✎</button>
+      <button onclick="deleteCustomCat('${cc.id}')" style="width:28px;height:28px;background:rgba(255,77,77,0.08);border:.5px solid rgba(255,77,77,0.2);border-radius:50%;color:#FF4D4D;cursor:pointer;font-size:14px">×</button>
+    </div>`).join('');
+}
+
+function addCustomCat(){
+  const name=document.getElementById('newcat-name').value.trim();
+  if(!name){toast('Escribe un nombre');return;}
+  const limVal=parseFloat(document.getElementById('newcat-limit').value);
+  const lim=isNaN(limVal)||limVal<=0?null:limVal;
+  const id='custom_'+Date.now();
+  const col=selectedCatColor;
+  const bg=col+'22';
+  SVGS[id]=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><text x="12" y="16" text-anchor="middle" font-size="10" fill="currentColor" stroke="none" font-family="sans-serif">${name[0].toUpperCase()}</text></svg>`;
+  const newCat={id,lb:name,col,bg,lim};
+  const custom=loadCustomCats();
+  custom.push(newCat);
+  saveCustomCats(custom);
+  CATS.push(newCat);
+  if(lim) catLimits[id]=lim;
+  saveLimits();
+  document.getElementById('newcat-name').value='';
+  document.getElementById('newcat-limit').value='';
+  buildColorPicker();
+  renderCustomCatsList();
+  buildQCats();
+  update();
+  toast('Categoría "'+name+'" añadida');
+}
+
+function deleteCustomCat(id){
+  saveCustomCats(loadCustomCats().filter(c=>c.id!==id));
+  const idx=CATS.findIndex(c=>c.id===id);
+  if(idx>-1)CATS.splice(idx,1);
+  delete catLimits[id];
+  saveLimits();
+  buildQCats();
+  renderCustomCatsList();
+  update();
+  toast('Categoría eliminada');
+}
+
+function renameCat(id){
+  const cat=CATS.find(c=>c.id===id);
+  if(!cat)return;
+  const name=prompt('Nuevo nombre:',cat.lb);
+  if(!name||!name.trim())return;
+  cat.lb=name.trim();
+  const custom=loadCustomCats();
+  const cc=custom.find(c=>c.id===id);
+  if(cc){cc.lb=name.trim();saveCustomCats(custom);}
+  SVGS[id]=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><text x="12" y="16" text-anchor="middle" font-size="10" fill="currentColor" stroke="none" font-family="sans-serif">${name.trim()[0].toUpperCase()}</text></svg>`;
+  renderCustomCatsList();
+  buildQCats();
+  update();
+  toast('Renombrada ✓');
+}
+
+/* Init custom cats BEFORE building any cat UI */
+mergeCustomCats();
+
 
 update();
 </script>
