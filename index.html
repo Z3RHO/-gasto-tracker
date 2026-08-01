@@ -169,7 +169,7 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 .hm-exp:hover{border-color:var(--accent);color:var(--accent);}
 
 /* QUICK VIEW */
-.qview{padding:20px 20px 0;}
+.qview{padding:16px 20px 0;}
 .qview-lbl{font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px;font-weight:600;}
 .qdisplay{font-family:var(--disp);font-size:64px;font-weight:700;letter-spacing:-4px;color:var(--text);min-height:72px;margin-bottom:4px;}
 .qcat-lbl{font-size:12px;color:var(--sub);margin-bottom:18px;font-weight:500;}
@@ -181,9 +181,9 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 .qcat-lb{font-size:10px;color:var(--sub);font-weight:500;}
 .qcat.on .qcat-lb{color:var(--accent);}
 .qgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;}
-.qbtn{background:var(--s1);border:0.5px solid var(--bd2);border-radius:14px;padding:18px 8px;font-family:var(--disp);font-size:22px;font-weight:700;color:var(--text);cursor:pointer;transition:all .1s;}
+.qbtn{background:var(--s1);border:0.5px solid var(--bd2);border-radius:12px;padding:14px 8px;font-family:var(--disp);font-size:20px;font-weight:700;color:var(--text);cursor:pointer;transition:all .1s;}
 .qbtn:active{background:var(--accent-dim);border-color:var(--accent);transform:scale(.95);}
-.qadd-btn{width:100%;background:var(--accent);border:none;border-radius:16px;padding:18px;font-family:var(--disp);font-size:16px;font-weight:700;color:#000;cursor:pointer;transition:all .15s;}
+.qadd-btn{width:100%;background:var(--accent);border:none;border-radius:14px;padding:15px;font-family:var(--disp);font-size:15px;font-weight:700;color:#000;cursor:pointer;transition:all .15s;}
 .qadd-btn:active{transform:scale(.98);}
 
 /* BOTTOM NAV */
@@ -314,66 +314,36 @@ body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:1
 <div class="view" id="view-quick">
   <div class="qview">
     <div class="qview-lbl">Añadir rápido</div>
+
+    <!-- Nota ARRIBA para no empujar botones -->
+    <input type="text" id="q-note" placeholder="Nota (opcional)"
+      style="width:100%;background:var(--s1);border:0.5px solid var(--bd2);border-radius:13px;padding:11px 16px;font-family:var(--body);font-size:14px;color:var(--text);outline:none;margin-bottom:12px;-webkit-appearance:none;transition:border .2s"
+      onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--bd2)'">
+
+    <!-- Display -->
     <div class="qdisplay" id="q-display">0</div>
     <div class="qcat-lbl">€ · <span id="q-cat-name">Comida</span></div>
+
+    <!-- Categorías -->
     <div class="qcats" id="q-cats"></div>
+
+    <!-- Teclado -->
     <div class="qgrid">
-      <button class="qbtn" onclick="qkey('1')">1</button><button class="qbtn" onclick="qkey('2')">2</button><button class="qbtn" onclick="qkey('3')">3</button>
-      <button class="qbtn" onclick="qkey('4')">4</button><button class="qbtn" onclick="qkey('5')">5</button><button class="qbtn" onclick="qkey('6')">6</button>
-      <button class="qbtn" onclick="qkey('7')">7</button><button class="qbtn" onclick="qkey('8')">8</button><button class="qbtn" onclick="qkey('9')">9</button>
-      <button class="qbtn" onclick="qkey('.')">.</button><button class="qbtn" onclick="qkey('0')">0</button>
+      <button class="qbtn" onclick="qkey('1')">1</button>
+      <button class="qbtn" onclick="qkey('2')">2</button>
+      <button class="qbtn" onclick="qkey('3')">3</button>
+      <button class="qbtn" onclick="qkey('4')">4</button>
+      <button class="qbtn" onclick="qkey('5')">5</button>
+      <button class="qbtn" onclick="qkey('6')">6</button>
+      <button class="qbtn" onclick="qkey('7')">7</button>
+      <button class="qbtn" onclick="qkey('8')">8</button>
+      <button class="qbtn" onclick="qkey('9')">9</button>
+      <button class="qbtn" onclick="qkey('.')">.</button>
+      <button class="qbtn" onclick="qkey('0')">0</button>
       <button class="qbtn" style="color:var(--sub)" onclick="qkey('del')">⌫</button>
     </div>
-    <input type="text" id="q-note" placeholder="Nota (opcional)"
-      style="width:100%;background:var(--s1);border:0.5px solid var(--bd2);border-radius:13px;padding:13px 16px;font-family:var(--body);font-size:14px;color:var(--text);outline:none;margin-bottom:10px;-webkit-appearance:none;transition:border .2s"
-      onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--bd2)'">
+
     <button onclick="qSubmit()" class="qadd-btn" id="q-add-btn">Añadir · 0 €</button>
-  </div>
-</div>
-
-</div>
-
-<!-- CATS VIEW -->
-<div class="view" id="view-cats">
-  <div style="padding:52px 20px 0;display:flex;align-items:center;gap:14px;border-bottom:0.5px solid var(--bd);padding-bottom:22px;margin-bottom:24px">
-    <button onclick="sv('stats')" style="background:none;border:none;color:var(--sub);font-size:22px;cursor:pointer;line-height:1;padding:4px;transition:color .15s">←</button>
-    <div style="font-family:var(--disp);font-size:18px;font-weight:700;color:var(--text)">Mis categorías</div>
-  </div>
-
-  <div style="padding:0 20px">
-
-    <!-- Nueva categoría -->
-    <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:12px">Nueva categoría</div>
-
-    <div style="background:var(--s1);border:0.5px solid var(--bd2);border-radius:18px;padding:18px;margin-bottom:24px">
-      <input type="text" id="newcat-name" placeholder="Nombre (ej: Gimnasio, Mascota...)"
-        style="width:100%;background:var(--s2);border:0.5px solid var(--bd);border-radius:11px;padding:13px 14px;font-family:var(--body);font-size:15px;font-weight:600;color:var(--text);outline:none;margin-bottom:12px;-webkit-appearance:none;transition:border .2s"
-        onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--bd)'">
-
-      <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:10px">Color</div>
-      <div id="color-picker" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px"></div>
-
-      <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px">
-        <div style="flex:1">
-          <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:8px">Límite mensual</div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <input type="number" id="newcat-limit" placeholder="Sin límite" inputmode="decimal"
-              style="flex:1;background:var(--s2);border:0.5px solid var(--bd);border-radius:11px;padding:12px 14px;font-family:var(--disp);font-size:18px;font-weight:700;color:var(--text);outline:none;text-align:right;-webkit-appearance:none;transition:border .2s"
-              onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--bd)'">
-            <span style="font-size:14px;color:var(--sub);font-weight:600">€/mes</span>
-          </div>
-        </div>
-      </div>
-
-      <button onclick="addCustomCat()" style="width:100%;background:var(--accent);border:none;border-radius:13px;padding:14px;font-family:var(--disp);font-size:15px;font-weight:700;color:#000;cursor:pointer;transition:all .15s">
-        + Añadir categoría
-      </button>
-    </div>
-
-    <!-- Existentes -->
-    <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:12px">Personalizadas</div>
-    <div id="custom-cats-list"></div>
-
   </div>
 </div>
 
@@ -1002,6 +972,7 @@ function qSubmit(){
   qVal='0';
   document.getElementById('q-display').textContent='0';
   document.getElementById('q-add-btn').textContent='Añadir · 0 €';
+  const qn=document.getElementById('q-note'); if(qn) qn.value='';
   checkAlert();
 }
 
