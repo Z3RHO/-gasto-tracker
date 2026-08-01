@@ -211,13 +211,28 @@ body{font-family:var(--body);color:var(--text);background:var(--bg);min-height:1
   </div>
 
   <div class="pw">
-    <div class="pr"><span id="plbl">0% del presupuesto</span><span id="pbudget" onclick="editBudget()" style="cursor:pointer;border-bottom:0.5px dashed rgba(255,255,255,0.2);padding-bottom:1px">límite: 900 € ✎</span></div>
+    <div class="pr"><span id="plbl">0% del presupuesto</span><span id="pbudget">límite: 900 €</span></div>
     <div class="pt"><div class="pf" id="pfill" style="width:0%"></div></div>
   </div>
 
+  <div class="qw">
+    <div class="qcard">
+      <div class="qlbl">Nuevo gasto</div>
+      <div class="qtop">
+        <div class="qsign">€</div>
+        <input type="number" class="qin" id="ain" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
+      </div>
+      <div class="cats" id="cats"></div>
+      <div class="recur-toggle" onclick="toggleRecur()">
+        <div class="toggle-track" id="rtoggle"><div class="toggle-thumb"></div></div>
+        <div class="toggle-lbl">Gasto recurrente (se repetirá cada mes)</div>
+      </div>
+      <input type="text" class="nin" id="nin" placeholder="Nota (opcional)">
+      <button class="abtn" onclick="addExp()">+ Añadir gasto</button>
+    </div>
+  </div>
 
-
-  <!-- RECURRENTES  <!-- RECURRENTES -->
+  <!-- RECURRENTES -->
   <div class="recur-section">
     <div class="rsect">
       <span>Recurrentes</span>
@@ -279,39 +294,8 @@ body{font-family:var(--body);color:var(--text);background:var(--bg);min-height:1
       <button class="qbtn" onclick="qkey('.')">.</button><button class="qbtn" onclick="qkey('0')">0</button>
       <button class="qbtn" style="color:var(--sub)" onclick="qkey('del')">⌫</button>
     </div>
-    <input type="text" id="q-note" placeholder="Nota (opcional)"
-      style="width:100%;background:rgba(8,8,18,0.8);border:.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:11px 14px;font-size:13px;color:#fff;outline:none;margin-bottom:10px;font-family:sans-serif;-webkit-appearance:none">
+    <input type="text" id="q-note" placeholder="Nota (opcional)" style="width:100%;background:rgba(255,255,255,0.05);border:.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:11px 14px;font-size:13px;color:#fff;outline:none;margin-bottom:8px;font-family:sans-serif;-webkit-appearance:none">
     <button onclick="qSubmit()" style="width:100%;background:var(--red);border:none;border-radius:16px;padding:18px;font-family:var(--disp);font-size:16px;font-weight:700;color:#fff;cursor:pointer;letter-spacing:.3px;transition:all .15s" id="q-add-btn">Añadir · 0 €</button>
-  </div>
-</div>
-
-<!-- EDIT MODAL -->
-<div class="mbg" id="modal-edit" onclick="if(event.target===this)closeModal('edit')">
-  <div class="modal">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <div style="font-family:var(--disp);font-size:16px;font-weight:700;color:var(--text)">Editar gasto</div>
-      <button onclick="closeModal('edit')" style="background:none;border:none;font-size:22px;color:var(--sub);cursor:pointer;line-height:1">×</button>
-    </div>
-    <div style="margin-bottom:12px">
-      <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:6px">Importe</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <input type="number" id="edit-amt" inputmode="decimal" step="0.01"
-          style="flex:1;background:rgba(8,8,18,0.9);border:.5px solid rgba(255,255,255,0.2);border-radius:11px;padding:12px 14px;font-family:var(--disp);font-size:22px;font-weight:700;color:var(--text);outline:none;text-align:right;-webkit-appearance:none">
-        <span style="font-size:15px;color:var(--sub);font-weight:600">€</span>
-      </div>
-    </div>
-    <div style="margin-bottom:12px">
-      <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:6px">Nota</div>
-      <input type="text" id="edit-note"
-        style="width:100%;background:rgba(8,8,18,0.9);border:.5px solid rgba(255,255,255,0.15);border-radius:11px;padding:11px 13px;font-family:sans-serif;font-size:14px;color:var(--text);outline:none">
-    </div>
-    <div style="margin-bottom:16px">
-      <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:8px">Categoría</div>
-      <div id="edit-cats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px"></div>
-    </div>
-    <button onclick="saveEdit()" style="width:100%;background:var(--red);border:none;border-radius:13px;padding:14px;font-family:var(--disp);font-size:15px;font-weight:700;color:#fff;cursor:pointer">
-      Guardar cambios
-    </button>
   </div>
 </div>
 
@@ -395,11 +379,7 @@ const BUDGET_DEFAULT=900;
 
 let all     =JSON.parse(localStorage.getItem('gt_e')||'[]');
 let recuring=JSON.parse(localStorage.getItem('gt_r')||'[]');
-let catLimits=(function(){
-  const saved=JSON.parse(localStorage.getItem('gt_cl')||'{}');
-  CATS.forEach(c=>{if(saved[c.id]===undefined&&c.lim)saved[c.id]=c.lim;});
-  return saved;
-})();
+let catLimits=JSON.parse(localStorage.getItem('gt_cl')||JSON.stringify(Object.fromEntries(CATS.map(c=>[c.id,c.lim]))));
 let budgets =JSON.parse(localStorage.getItem('gt_b')||'{}');
 let selCat  ='comida';
 let selRCat ='suscri';
@@ -409,17 +389,6 @@ const now   =new Date();
 const _savedMonth = JSON.parse(localStorage.getItem('gt_curMonth')||'null');
 let curY = _savedMonth ? _savedMonth.y : now.getFullYear();
 let curM = _savedMonth ? _savedMonth.m : now.getMonth();
-
-function editBudget(){
-  const current=getBudget();
-  const val=prompt('Presupuesto mensual (€):',current);
-  if(val===null)return;
-  const num=parseInt(val);
-  if(isNaN(num)||num<0){toast('Importe no válido');return;}
-  budgets[curY+'_'+curM]=num;
-  localStorage.setItem('gt_b',JSON.stringify(budgets));
-  update();toast('Presupuesto: '+num+' €');
-}
 
 function saveAll(){localStorage.setItem('gt_e',JSON.stringify(all));}
 function saveRecur(){localStorage.setItem('gt_r',JSON.stringify(recuring));}
@@ -530,12 +499,9 @@ function autoAddRecurrents(){
 }
 
 function addExp(){ if(navigator.vibrate)navigator.vibrate(40);
-  const ainEl=document.getElementById('ain');
-  if(!ainEl)return; // form removed from home view
-  const v=parseFloat(ainEl.value);
+  const v=parseFloat(document.getElementById('ain').value);
   if(!v||v<=0){toast('Introduce un importe válido');return;}
-  const ninEl=document.getElementById('nin');
-  const note=ninEl?ninEl.value.trim():'';
+  const note=document.getElementById('nin').value.trim();
   if(isRecur){
     const name=note||CATS.find(c=>c.id===selCat).lb;
     const rid=Date.now();
@@ -546,8 +512,7 @@ function addExp(){ if(navigator.vibrate)navigator.vibrate(40);
     all.push({ts:Date.now(),amount:v,cat:selCat,note,y:curY,m:curM});
   }
   saveAll();update();
-  const _ain=document.getElementById('ain');if(_ain)_ain.value='';
-  const _nin=document.getElementById('nin');if(_nin)_nin.value='';
+  document.getElementById('ain').value='';document.getElementById('nin').value='';
   if(isRecur){toggleRecur();}
   const cat=CATS.find(c=>c.id===selCat);
   toast(v.toFixed(2)+' € · '+cat.lb+(isRecur?' (recurrente)':''));
@@ -650,51 +615,13 @@ function renderList(me){
         <div class="enote">${e.note||ts}</div>
         ${e.note?`<div class="etime">${ts}</div>`:''}
       </div>
-      <div class="eamt" onclick="editExp(${e.ts})" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px">${e.amount.toFixed(2)} €</div>
+      <div class="eamt">${e.amount.toFixed(2)} €</div>
       <button class="edel" onclick="delExp(${e.ts})">×</button>
     </div>`;
   }).join('');
 }
 
 function delExp(ts){all=all.filter(e=>e.ts!==ts);saveAll();update();}
-
-let _editTs=null;
-function editExp(ts){
-  const exp=all.find(e=>e.ts===ts);
-  if(!exp)return;
-  _editTs=ts;
-  document.getElementById('edit-amt').value=exp.amount.toFixed(2);
-  document.getElementById('edit-note').value=exp.note||'';
-  // Build cat grid
-  const el=document.getElementById('edit-cats');
-  el.innerHTML='';
-  CATS.forEach(cat=>{
-    const d=document.createElement('div');
-    const sel=cat.id===exp.cat;
-    d.style.cssText=`background:${sel?cat.bg:'rgba(8,8,18,0.6)'};border:.5px solid ${sel?cat.col:'rgba(255,255,255,0.08)'};border-radius:10px;padding:8px 4px 6px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s`;
-    d.innerHTML=`<div style="color:${cat.col};width:18px;height:18px">${SVGS[cat.id]}</div><div style="font-size:9px;color:${sel?cat.col:'rgba(255,255,255,0.4)'};font-weight:500">${cat.lb}</div>`;
-    d.onclick=()=>{
-      el.querySelectorAll('div[style]').forEach(x=>{x.style.background='rgba(8,8,18,0.6)';x.style.borderColor='rgba(255,255,255,0.08)';});
-      d.style.background=cat.bg;d.style.borderColor=cat.col;
-      const ex=all.find(e=>e.ts===_editTs);if(ex)ex._cat=cat.id;
-    };
-    el.appendChild(d);
-  });
-  openModal('edit');
-}
-
-function saveEdit(){
-  const exp=all.find(e=>e.ts===_editTs);
-  if(!exp){closeModal('edit');return;}
-  const amt=parseFloat(document.getElementById('edit-amt').value);
-  if(isNaN(amt)||amt<=0){toast('Importe no válido');return;}
-  exp.amount=amt;
-  exp.note=document.getElementById('edit-note').value.trim();
-  if(exp._cat){exp.cat=exp._cat;delete exp._cat;}
-  saveAll();update();
-  closeModal('edit');
-  toast('Gasto actualizado ✓');
-}
 function clearMonth(){
   if(!confirm('¿Borrar todos los gastos de este mes?'))return;
   all=all.filter(e=>!(e.y===curY&&e.m===curM));saveAll();update();
@@ -863,7 +790,7 @@ function qSubmit(){
   const v=parseFloat(qVal)||0;
   if(v<=0){if(navigator.vibrate)navigator.vibrate([30,20,30]);return;}
   if(navigator.vibrate)navigator.vibrate(40);
-  const qnote=(document.getElementById('q-note')||{}).value||''; all.push({ts:Date.now(),amount:v,cat:qCat,note:qnote.trim(),y:curY,m:curM});
+  const _qnote=(document.getElementById('q-note')||{}).value||''; all.push({ts:Date.now(),amount:v,cat:qCat,note:_qnote.trim(),y:curY,m:curM});
   saveAll();update();
   const cat=CATS.find(c=>c.id===qCat);
   toast(v.toFixed(2)+' € · '+cat.lb);
@@ -1014,114 +941,7 @@ function csvDownload(expenses, filename){
   },{passive:true});
 })();
 
-/* ── CUSTOM CATEGORIES ── */
-const CAT_COLORS=['#E8FF47','#FF4D4D','#4DFF91','#FFB547','#4D9FFF','#FF4DCC','#FF8C47','#A347FF','#47FFE8','#FF4D7A'];
-let selectedCatColor=CAT_COLORS[0];
-
-function loadCustomCats(){try{return JSON.parse(localStorage.getItem('gt_custom_cats')||'[]');}catch{return [];}}
-function saveCustomCats(a){localStorage.setItem('gt_custom_cats',JSON.stringify(a));}
-
-function mergeCustomCats(){
-  const custom=loadCustomCats();
-  custom.forEach(cc=>{
-    if(!CATS.find(c=>c.id===cc.id)) CATS.push(cc);
-    // Always rebuild SVG in case it was lost
-    SVGS[cc.id]=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><text x="12" y="16" text-anchor="middle" font-size="10" fill="currentColor" stroke="none" font-family="sans-serif">${(cc.lb||'?')[0].toUpperCase()}</text></svg>`;
-    if(cc.lim) catLimits[cc.id]=cc.lim;
-  });
-}
-
-function buildColorPicker(){
-  const el=document.getElementById('color-picker');
-  if(!el)return;
-  el.innerHTML=CAT_COLORS.map(col=>`
-    <div onclick="selectColor('${col}')"
-      style="width:36px;height:36px;border-radius:50%;background:${col};cursor:pointer;flex-shrink:0;
-      border:2.5px solid ${col===selectedCatColor?'#fff':'transparent'};
-      transform:${col===selectedCatColor?'scale(1.15)':'scale(1)'};transition:all .15s">
-    </div>`).join('');
-}
-
-function selectColor(col){selectedCatColor=col;buildColorPicker();}
-
-function renderCustomCatsList(){
-  const el=document.getElementById('custom-cats-list');
-  if(!el)return;
-  const custom=loadCustomCats();
-  if(!custom.length){
-    el.innerHTML='<div style="font-size:12px;color:rgba(255,255,255,0.2);text-align:center;padding:8px 0">Sin categorías personalizadas</div>';
-    return;
-  }
-  el.innerHTML=custom.map(cc=>`
-    <div style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(8,8,18,0.6);border-radius:12px;margin-bottom:8px;border:.5px solid rgba(255,255,255,0.08)">
-      <div style="width:36px;height:36px;border-radius:10px;background:${cc.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <div style="width:12px;height:12px;border-radius:50%;background:${cc.col}"></div>
-      </div>
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:600;color:#fff">${cc.lb}</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px">${cc.lim?cc.lim+' €/mes':'Sin límite'}</div>
-      </div>
-      <button onclick="renameCat('${cc.id}')" style="width:28px;height:28px;background:rgba(232,255,71,0.08);border:.5px solid rgba(232,255,71,0.2);border-radius:50%;color:#E8FF47;cursor:pointer;font-size:13px;margin-right:4px">✎</button>
-      <button onclick="deleteCustomCat('${cc.id}')" style="width:28px;height:28px;background:rgba(255,77,77,0.08);border:.5px solid rgba(255,77,77,0.2);border-radius:50%;color:#FF4D4D;cursor:pointer;font-size:14px">×</button>
-    </div>`).join('');
-}
-
-function addCustomCat(){
-  const name=document.getElementById('newcat-name').value.trim();
-  if(!name){toast('Escribe un nombre');return;}
-  const limVal=parseFloat(document.getElementById('newcat-limit').value);
-  const lim=isNaN(limVal)||limVal<=0?null:limVal;
-  const id='custom_'+Date.now();
-  const col=selectedCatColor;
-  const bg=col+'22';
-  SVGS[id]=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><text x="12" y="16" text-anchor="middle" font-size="10" fill="currentColor" stroke="none" font-family="sans-serif">${name[0].toUpperCase()}</text></svg>`;
-  const newCat={id,lb:name,col,bg,lim};
-  const custom=loadCustomCats();
-  custom.push(newCat);
-  saveCustomCats(custom);
-  CATS.push(newCat);
-  if(lim) catLimits[id]=lim;
-  saveLimits();
-  document.getElementById('newcat-name').value='';
-  document.getElementById('newcat-limit').value='';
-  buildColorPicker();
-  renderCustomCatsList();
-  buildQCats();
-  update();
-  toast('Categoría "'+name+'" añadida');
-}
-
-function deleteCustomCat(id){
-  saveCustomCats(loadCustomCats().filter(c=>c.id!==id));
-  const idx=CATS.findIndex(c=>c.id===id);
-  if(idx>-1)CATS.splice(idx,1);
-  delete catLimits[id];
-  saveLimits();
-  buildQCats();
-  renderCustomCatsList();
-  update();
-  toast('Categoría eliminada');
-}
-
-function renameCat(id){
-  const cat=CATS.find(c=>c.id===id);
-  if(!cat)return;
-  const name=prompt('Nuevo nombre:',cat.lb);
-  if(!name||!name.trim())return;
-  cat.lb=name.trim();
-  const custom=loadCustomCats();
-  const cc=custom.find(c=>c.id===id);
-  if(cc){cc.lb=name.trim();saveCustomCats(custom);}
-  SVGS[id]=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><text x="12" y="16" text-anchor="middle" font-size="10" fill="currentColor" stroke="none" font-family="sans-serif">${name.trim()[0].toUpperCase()}</text></svg>`;
-  renderCustomCatsList();
-  buildQCats();
-  update();
-  toast('Renombrada ✓');
-}
-
-/* Init custom cats BEFORE building any cat UI */
-mergeCustomCats();
-
+document.getElementById('ain').addEventListener('keydown',e=>{if(e.key==='Enter')addExp();});
 
 update();
 </script>
