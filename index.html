@@ -639,29 +639,7 @@ function renderRecur(){
   }).join('')+`<div class="ritem-add" onclick="openModal('recur')" style="margin-top:7px">+ Añadir otro</div>`;
 }
 
-function renderList(me){
-  const el=document.getElementById('elist');
-  const sorted=[...me].sort((a,b)=>b.ts-a.ts).slice(0,40);
-  if(!sorted.length){
-    el.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>Sin gastos este mes</div>`;
-    return;
-  }
-  el.innerHTML=sorted.map(e=>{
-    const cat=CATS.find(c=>c.id===e.cat)||CATS[7];
-    const d=new Date(e.ts);
-    const ts=d.toLocaleDateString('es-ES',{day:'2-digit',month:'short'})+' · '+d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-    return`<div class="exp">
-      <div class="epic" style="background:${cat.bg}"><div style="color:${cat.col};width:20px;height:20px">${SVGS[cat.id]}</div></div>
-      <div class="einfo">
-        <div class="ecat" style="color:${cat.col}">${cat.lb}${e.isRecur?'<span class="recur-badge">fijo</span>':''}</div>
-        <div class="enote">${e.note||ts}</div>
-        ${e.note?`<div class="etime">${ts}</div>`:''}
-      </div>
-      <div class="eamt">${e.amount.toFixed(2)} €</div>
-      <button class="edel" onclick="delExp(${e.ts})">×</button>
-    </div>`;
-  }).join('');
-}
+/* renderList overridden below */
 
 function delExp(ts){all=all.filter(e=>e.ts!==ts);saveAll();update();}
 function clearMonth(){
@@ -781,9 +759,14 @@ function closeModal(id,e){if(!e||e.target===document.getElementById('modal-'+id)
 function sv(v){
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('on'));
   document.querySelectorAll('.ni').forEach(el=>el.classList.remove('on'));
+  if(v==='cats'){
+    var _ve=document.getElementById('view-cats');if(_ve)_ve.classList.add('on');
+    if(typeof _buildCP==='function'){_buildCP();_renderCCList();}
+    return;
+  }
   const _vEl=document.getElementById('view-'+v);if(_vEl)_vEl.classList.add('on');
   const _nEl=document.getElementById('nav-'+v);if(_nEl)_nEl.classList.add('on');
-  if(v==='stats')updateStats();if(v==='hist')updateHist();if(v==='quick')buildQCats();
+  if(v==='stats'){if(typeof _mergeCC==='function')_mergeCC();updateStats();}if(v==='hist')updateHist();if(v==='quick')buildQCats();
 }
 
 function toast(msg){
@@ -983,8 +966,7 @@ function csvDownload(expenses, filename){
   },{passive:true});
 })();
 
-document.getElementById('ain').addEventListener('keydown',e=>{if(e.key==='Enter')addExp();});
-
+_mergeCC();
 update();
 
 /* ══ editBudget ══ */
@@ -1175,22 +1157,8 @@ function _renCC(id){
   buildQCats();_renderCCList();update();toast('Renombrada ✓');
 }
 
-/* ══ sv patch — handle cats view, merge on quick ══ */
-var _svOrig=sv;
-function sv(v){
-  document.querySelectorAll('.view').forEach(function(el){el.classList.remove('on');});
-  document.querySelectorAll('.ni').forEach(function(el){el.classList.remove('on');});
-  var view=document.getElementById('view-'+v);if(view)view.classList.add('on');
-  var nav=document.getElementById('nav-'+v);if(nav)nav.classList.add('on');
-  if(v==='stats')updateStats();
-  if(v==='hist')updateHist();
-  if(v==='quick'){_mergeCC();buildQCats();}
-  if(v==='cats'){_buildCP();_renderCCList();}
-  if(v==='home'){_mergeCC();update();}
-}
 
-/* ══ Init ══ */
-_mergeCC();
+
 
 </script>
 </body>
