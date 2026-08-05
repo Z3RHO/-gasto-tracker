@@ -211,35 +211,12 @@ body{font-family:var(--body);color:var(--text);background:var(--bg);min-height:1
   </div>
 
   <div class="pw">
-    <div class="pr"><span id="plbl">0% del presupuesto</span><span id="pbudget">límite: 900 €</span></div>
+    <div class="pr"><span id="plbl">0% del presupuesto</span><span id="pbudget" onclick="editBudget()" style="cursor:pointer;border-bottom:.5px dashed rgba(255,255,255,.3);padding-bottom:1px">límite: 900 € ✎</span></div>
     <div class="pt"><div class="pf" id="pfill" style="width:0%"></div></div>
   </div>
 
-  <div class="qw">
-    <div class="qcard">
-      <div class="qlbl">Nuevo gasto</div>
-      <div class="qtop">
-        <div class="qsign">€</div>
-        <input type="number" class="qin" id="ain" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
-      </div>
-      <div class="cats" id="cats"></div>
-      <div class="recur-toggle" onclick="toggleRecur()">
-        <div class="toggle-track" id="rtoggle"><div class="toggle-thumb"></div></div>
-        <div class="toggle-lbl">Gasto recurrente (se repetirá cada mes)</div>
-      </div>
-      <input type="text" class="nin" id="nin" placeholder="Nota (opcional)">
-      <button class="abtn" onclick="addExp()">+ Añadir gasto</button>
-    </div>
-  </div>
 
-  <!-- RECURRENTES -->
-  <div class="recur-section">
-    <div class="rsect">
-      <span>Recurrentes</span>
-      <button class="rsect-add" onclick="openModal('recur')">+ Añadir fijo</button>
-    </div>
-    <div id="recur-list"></div>
-  </div>
+  <!-- RECURRENTES  <!-- RECURRENTES -->
 
   <div class="lw">
     <div class="lhdr">
@@ -260,9 +237,7 @@ body{font-family:var(--body);color:var(--text);background:var(--bg);min-height:1
     <div style="display:flex;gap:8px;margin-bottom:4px">
       <button onclick="exportCSV()" style="flex:1;background:rgba(8,8,18,0.8);border:.5px solid var(--bd2);border-radius:12px;padding:11px;font-family:var(--disp);font-size:12px;font-weight:600;color:var(--green);cursor:pointer;letter-spacing:.3px;transition:all .15s">↓ Exportar CSV</button>
       <button onclick="exportAllCSV()" style="flex:1;background:rgba(8,8,18,0.8);border:.5px solid var(--bd2);border-radius:12px;padding:11px;font-family:var(--disp);font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;letter-spacing:.3px;transition:all .15s">↓ Todo el año</button>
-    </div>    <div class="ssect">Gasto semanal</div>
-    <div style="background:rgba(8,8,18,0.8);border:.5px solid var(--bd);border-radius:15px;padding:16px;margin-bottom:4px;backdrop-filter:blur(8px)">
-      <div id="weekly-chart" style="display:flex;align-items:flex-end;gap:8px;height:80px"></div>
+    </div>
       <div id="weekly-labels" style="display:flex;gap:8px;margin-top:8px"></div>
     </div>
     <div class="ssect" style="display:flex;align-items:center;justify-content:space-between"><span>Límites por categoría</span><button onclick="sv('cats')" style="font-size:11px;color:var(--red2);background:none;border:none;cursor:pointer;font-weight:600;font-family:sans-serif">+ Nueva cat</button></div>
@@ -374,6 +349,26 @@ body{font-family:var(--body);color:var(--text);background:var(--bg);min-height:1
 </div>
 
 <!-- MONTH SUMMARY MODAL -->
+<div class="mbg" id="modal-edit" onclick="if(event.target===this)closeModal('edit')">
+  <div class="modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-family:var(--disp);font-size:16px;font-weight:700">Editar gasto</div>
+      <button onclick="closeModal('edit')" style="background:none;border:none;font-size:22px;color:var(--sub);cursor:pointer;line-height:1">×</button>
+    </div>
+    <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:6px">Importe</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <input type="number" id="edit-amt" inputmode="decimal" step="0.01"
+        style="flex:1;background:rgba(8,8,18,.9);border:.5px solid rgba(255,255,255,.2);border-radius:11px;padding:12px 14px;font-family:var(--disp);font-size:22px;font-weight:700;color:#fff;outline:none;text-align:right;-webkit-appearance:none">
+      <span style="font-size:15px;color:var(--sub);font-weight:600">€</span>
+    </div>
+    <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:6px">Nota</div>
+    <input type="text" id="edit-note" style="width:100%;background:rgba(8,8,18,.9);border:.5px solid rgba(255,255,255,.15);border-radius:11px;padding:11px 13px;font-size:14px;color:#fff;outline:none;font-family:sans-serif;margin-bottom:12px">
+    <div style="font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:8px">Categoría</div>
+    <div id="edit-cats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:16px"></div>
+    <button onclick="saveEdit()" style="width:100%;background:var(--red);border:none;border-radius:12px;padding:13px;font-family:var(--disp);font-size:14px;font-weight:700;color:#fff;cursor:pointer">Guardar cambios</button>
+  </div>
+</div>
+
 <div class="mbg" id="modal-summary" onclick="closeModal('summary',event)">
   <div class="modal" style="padding:24px">
     <div id="summary-content"></div>
@@ -920,26 +915,54 @@ function exportMonthCSV(y,m){
 }
 
 function csvDownload(expenses, filename){
-  const BOM = '\uFEFF'; // UTF-8 BOM for Excel
-  const header = ['Fecha','Hora','Categoría','Nota','Importe (€)','Mes','Año'].join(';');
-  const rows = expenses
-    .sort((a,b)=>a.ts-b.ts)
-    .map(e=>{
-      const d = new Date(e.ts);
-      const cat = CATS.find(c=>c.id===e.cat)||CATS[7];
-      const fecha = d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
-      const hora  = d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-      const nota  = (e.note||'').replace(/;/g,',');
-      const imp   = e.amount.toFixed(2).replace('.',',');
-      return [fecha, hora, cat.lb, nota, imp, MONTHS[d.getMonth()], d.getFullYear()].join(';');
+  const sorted=[...expenses].sort((a,b)=>a.ts-b.ts);
+  // Group by category
+  const groups={};
+  sorted.forEach(e=>{
+    const cat=CATS.find(c=>c.id===e.cat)||CATS[7];
+    if(!groups[cat.lb])groups[cat.lb]=[];
+    groups[cat.lb].push(e);
+  });
+  let allRows='';
+  let grandTotal=0;
+  Object.entries(groups).forEach(([catName,exps])=>{
+    const catTotal=exps.reduce((a,e)=>a+e.amount,0);
+    grandTotal+=catTotal;
+    allRows+=`<tr style="background:#1a1a2e"><td colspan="4" style="font-weight:700;color:#fff;font-size:12pt;padding:10px 12px;border:1px solid #333">${catName}</td>
+      <td style="text-align:right;font-weight:700;color:#fff;border:1px solid #333">${catTotal.toFixed(2).replace('.',',')} €</td></tr>`;
+    exps.forEach(e=>{
+      const d=new Date(e.ts);
+      const fecha=d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
+      const hora=d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+      const nota=(e.note||'').replace(/</g,'&lt;');
+      const imp=e.amount.toFixed(2).replace('.',',');
+      allRows+=`<tr><td style="padding:6px 12px;border:1px solid #ddd;color:#aaa;font-size:10pt">${fecha}</td>
+        <td style="padding:6px 12px;border:1px solid #ddd;color:#aaa">${hora}</td>
+        <td style="padding:6px 12px;border:1px solid #ddd">${nota}</td>
+        <td style="padding:6px 12px;border:1px solid #ddd"></td>
+        <td style="text-align:right;padding:6px 12px;border:1px solid #ddd">${imp} €</td></tr>`;
     });
-  const csv = BOM + header + '\n' + rows.join('\n');
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href=url; a.download=filename+'.csv'; a.click();
+  });
+  const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
+<head><meta charset="UTF-8"><style>
+body{font-family:Calibri,sans-serif;font-size:11pt;background:#fff}
+table{border-collapse:collapse;width:100%}
+th{background:#0A0A0A;color:#fff;padding:9px 12px;text-align:left;font-weight:700;border:1px solid #333;font-size:11pt}
+.total-row td{font-weight:700;background:#f0f0f0;border-top:2px solid #333;font-size:12pt}
+h2{font-family:Calibri;font-size:14pt;margin-bottom:12px;color:#0A0A0A}
+</style></head><body>
+<h2>Gastos · ${filename}</h2>
+<table>
+<thead><tr><th>Fecha</th><th>Hora</th><th>Nota</th><th>Categoría</th><th>Importe</th></tr></thead>
+<tbody>${allRows}</tbody>
+<tfoot><tr class="total-row"><td colspan="4"><strong>TOTAL GENERAL</strong></td>
+<td style="text-align:right;padding:8px 12px;border:1px solid #ddd"><strong>${grandTotal.toFixed(2).replace('.',',')} €</strong></td></tr></tfoot>
+</table></body></html>`;
+  const blob=new Blob([html],{type:'application/vnd.ms-excel;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=filename+'.xls';a.click();
   URL.revokeObjectURL(url);
-  toast('Descargado: '+filename+'.csv');
+  toast('Descargado: '+filename+'.xls');
 }
 
 /* ── SWIPE TO DELETE ── */
@@ -1056,6 +1079,7 @@ function _renameCC(id){
 /* Patch sv to handle cats view */
 const _origSV=sv;
 function sv(v){
+  if(v==='home'){_mergeCC();} // ensure custom cats are in CATS before rendering
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('on'));
   document.querySelectorAll('.ni').forEach(el=>el.classList.remove('on'));
   const view=document.getElementById('view-'+v);if(view)view.classList.add('on');
@@ -1068,6 +1092,88 @@ function sv(v){
 
 /* Init */
 _mergeCC();
+
+/* ══ EDIT BUDGET ══ */
+function editBudget(){
+  const v=prompt('Presupuesto mensual (€):',getBudget());
+  if(v===null)return;
+  const n=parseInt(v);if(isNaN(n)||n<0){toast('No válido');return;}
+  budgets[curY+'_'+curM]=n;
+  localStorage.setItem('gt_b',JSON.stringify(budgets));
+  update();toast('Presupuesto: '+n+' €');
+}
+
+/* ══ EDIT EXPENSE ══ */
+let _ets=null;
+function editExp(ts){
+  const exp=all.find(e=>e.ts===ts);if(!exp)return;
+  _ets=ts;
+  document.getElementById('edit-amt').value=exp.amount.toFixed(2);
+  document.getElementById('edit-note').value=exp.note||'';
+  const el=document.getElementById('edit-cats');el.innerHTML='';
+  _mergeCC();
+  CATS.forEach(cat=>{
+    const d=document.createElement('div');const sel=cat.id===exp.cat;
+    d.style.cssText=`background:${sel?cat.bg:'rgba(8,8,18,.6)'};border:.5px solid ${sel?cat.col:'rgba(255,255,255,.08)'};border-radius:10px;padding:8px 4px 6px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s`;
+    d.innerHTML=`<div style="color:${cat.col};width:18px;height:18px">${SVGS[cat.id]||''}</div><div style="font-size:9px;color:${sel?cat.col:'rgba(255,255,255,.4)'};font-weight:500;margin-top:2px">${cat.lb}</div>`;
+    d.onclick=()=>{
+      el.querySelectorAll('div').forEach(x=>{x.style.background='rgba(8,8,18,.6)';x.style.borderColor='rgba(255,255,255,.08)';});
+      d.style.background=cat.bg;d.style.borderColor=cat.col;
+      const e=all.find(e=>e.ts===_ets);if(e)e._cat=cat.id;
+    };
+    el.appendChild(d);
+  });
+  openModal('edit');
+}
+
+function saveEdit(){
+  const exp=all.find(e=>e.ts===_ets);if(!exp){closeModal('edit');return;}
+  const amt=parseFloat(document.getElementById('edit-amt').value);
+  if(isNaN(amt)||amt<=0){toast('Importe no válido');return;}
+  exp.amount=amt;
+  exp.note=document.getElementById('edit-note').value.trim();
+  if(exp._cat){exp.cat=exp._cat;delete exp._cat;}
+  saveAll();update();closeModal('edit');toast('Actualizado ✓');
+}
+
+/* ══ PATCH renderList — add edit tap & remove recur badge ══ */
+const _rlOrig=renderList;
+function renderList(me){
+  const el=document.getElementById('elist');
+  const sorted=[...me].sort((a,b)=>b.ts-a.ts).slice(0,50);
+  if(!sorted.length){
+    el.innerHTML='<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>Sin gastos este mes</div>';
+    return;
+  }
+  el.innerHTML=sorted.map(e=>{
+    const cat=CATS.find(c=>c.id===e.cat)||CATS[7];
+    const d=new Date(e.ts);
+    const ts=d.toLocaleDateString('es-ES',{day:'2-digit',month:'short'})+' · '+d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+    return`<div class="exp">
+      <div class="epic" style="background:${cat.bg}"><div style="color:${cat.col};width:20px;height:20px">${SVGS[cat.id]||''}</div></div>
+      <div class="einfo">
+        <div class="ecat" style="color:${cat.col}">${cat.lb}</div>
+        <div class="enote">${e.note||ts}</div>
+        ${e.note?`<div class="etime">${ts}</div>`:''} 
+      </div>
+      <div class="eamt" onclick="editExp(${e.ts})" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px" title="Toca para editar">${e.amount.toFixed(2)} €</div>
+      <button class="edel" onclick="delExp(${e.ts})">×</button>
+    </div>`;
+  }).join('');
+}
+
+/* ══ PATCH updateStats — remove weekly ══ */
+const _usOrig=updateStats;
+function updateStats(){
+  _usOrig();
+  // Hide weekly chart if present
+  const wc=document.getElementById('weekly-chart');
+  if(wc)wc.closest('.ssect')&&(wc.closest('.ssect').style.display='none');
+  ['weekly-chart','weekly-labels'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.display='none';
+  });
+}
+
 </script>
 </body>
 </html>
