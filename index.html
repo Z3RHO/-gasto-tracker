@@ -1164,6 +1164,19 @@ function _renCC(id){
 
 
 
+
+function openEditView(){
+  var v=document.getElementById('view-edit');
+  if(!v)return;
+  v.style.display='block';
+  setTimeout(function(){v.style.transform='translateX(0)';},10);
+}
+function closeEditView(){
+  var v=document.getElementById('view-edit');
+  if(!v)return;
+  v.style.transform='translateX(100%)';
+  setTimeout(function(){v.style.display='none';},320);
+}
 </script>
 </body>
 </html>
