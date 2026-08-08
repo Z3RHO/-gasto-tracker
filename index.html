@@ -615,12 +615,13 @@ function update(){
   const todayStart=new Date();todayStart.setHours(0,0,0,0);
   const todayAmt=me.filter(e=>new Date(e.ts)>=todayStart).reduce((a,e)=>a+e.amount,0);
   document.getElementById('chip-today').textContent='Hoy: '+todayAmt.toFixed(0)+' €';
-  renderRecur();renderList(me);
+  if(typeof renderRecur==='function'){try{renderRecur();}catch(e){}}renderList(me);
   if(curY===now.getFullYear()&&curM===now.getMonth())checkShowSummary();
 }
 
 function renderRecur(){
   const el=document.getElementById('recur-list');
+  if(!el)return;
   if(!recuring.length){
     el.innerHTML=`<div class="ritem-add" onclick="openModal('recur')">+ Añadir suscripción o gasto fijo mensual</div>`;
     return;
