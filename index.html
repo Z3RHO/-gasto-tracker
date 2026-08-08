@@ -357,30 +357,33 @@ body{font-family:var(--body);color:var(--text);background:var(--bg);min-height:1
   </div>
 </div>
 
-<!-- EDIT EXPENSE MODAL -->
-<div class="mbg" id="modal-edit" onclick="if(event.target===this)closeModal('edit')">
-  <div class="modal">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <div class="mtitle" style="margin-bottom:0">Editar gasto</div>
-      <button onclick="closeModal('edit')" style="background:none;border:none;font-size:22px;color:var(--sub);cursor:pointer;line-height:1">×</button>
+<!-- EDIT EXPENSE VIEW (full screen) -->
+<div class="view" id="view-edit" style="position:fixed;inset:0;background:var(--bg);z-index:50;overflow-y:auto;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:block!important">
+  <div style="padding:52px 22px 40px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px">
+      <div style="font-family:var(--disp);font-size:22px;font-weight:700;color:var(--text)">Editar gasto</div>
+      <button onclick="closeEditView()" style="width:36px;height:36px;background:rgba(255,255,255,.08);border:.5px solid rgba(255,255,255,.15);border-radius:50%;font-size:20px;color:var(--sub);cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;transition:all .15s">×</button>
     </div>
-    <div class="rm-row">
-      <div class="rm-lbl">Importe (€)</div>
-      <div style="display:flex;align-items:center;gap:8px">
+    <div style="margin-bottom:20px">
+      <div class="rm-lbl">Importe</div>
+      <div style="display:flex;align-items:center;gap:10px">
         <input type="number" id="edit-amt" inputmode="decimal" step="0.01"
-          style="flex:1;background:rgba(8,8,18,.9);border:.5px solid rgba(255,255,255,.2);border-radius:11px;padding:12px 14px;font-family:var(--disp);font-size:22px;font-weight:700;color:#fff;outline:none;text-align:right;-webkit-appearance:none">
-        <span style="color:var(--sub);font-weight:600;font-size:15px">€</span>
+          style="flex:1;background:rgba(255,255,255,.05);border:.5px solid rgba(255,255,255,.15);border-radius:14px;padding:16px 18px;font-family:var(--disp);font-size:32px;font-weight:700;color:#fff;outline:none;text-align:right;-webkit-appearance:none;transition:border .2s"
+          onfocus="this.style.borderColor='var(--red2)'" onblur="this.style.borderColor='rgba(255,255,255,.15)'">
+        <span style="font-size:20px;color:var(--sub);font-weight:600">€</span>
       </div>
     </div>
-    <div class="rm-row">
+    <div style="margin-bottom:20px">
       <div class="rm-lbl">Nota</div>
-      <input type="text" id="edit-note" class="rm-in" placeholder="Nota (opcional)">
+      <input type="text" id="edit-note" placeholder="Nota (opcional)"
+        style="width:100%;background:rgba(255,255,255,.05);border:.5px solid rgba(255,255,255,.1);border-radius:14px;padding:14px 16px;font-size:15px;color:#fff;outline:none;font-family:sans-serif;transition:border .2s"
+        onfocus="this.style.borderColor='var(--red2)'" onblur="this.style.borderColor='rgba(255,255,255,.1)'">
     </div>
-    <div class="rm-row">
+    <div style="margin-bottom:28px">
       <div class="rm-lbl">Categoría</div>
-      <div id="edit-cats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px"></div>
+      <div id="edit-cats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
     </div>
-    <button class="rm-btn" onclick="saveEdit()">Guardar cambios</button>
+    <button onclick="saveEdit()" style="width:100%;background:var(--red);border:none;border-radius:16px;padding:18px;font-family:var(--disp);font-size:16px;font-weight:700;color:#fff;cursor:pointer;transition:opacity .15s">Guardar cambios</button>
   </div>
 </div>
 
@@ -999,16 +1002,16 @@ function editExp(ts){
     };
     el.appendChild(d);
   });
-  openModal('edit');
+  openEditView();
 }
 function saveEdit(){
-  const exp=all.find(function(e){return e.ts===_ets;});if(!exp){closeModal('edit');return;}
+  const exp=all.find(function(e){return e.ts===_ets;});if(!exp){closeEditView();return;}
   const amt=parseFloat(document.getElementById('edit-amt').value);
   if(isNaN(amt)||amt<=0){toast('Importe no válido');return;}
   exp.amount=amt;
   exp.note=document.getElementById('edit-note').value.trim();
   if(exp._cat){exp.cat=exp._cat;delete exp._cat;}
-  saveAll();update();closeModal('edit');toast('Actualizado ✓');
+  saveAll();update();closeEditView();toast('Actualizado ✓');
 }
 
 /* ══ renderList with edit tap ══ */
